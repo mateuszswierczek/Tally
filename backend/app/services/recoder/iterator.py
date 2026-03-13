@@ -30,24 +30,25 @@ class QuestionIterator:
                 grouped.setdefault(match, []).append(col)
         return grouped
 
-    def iterate(self, df:pd.DataFrame):
+    def iterate(self):
+        #TODO: Obsługa 'Cafeteria' oraz 'Subquestion'
         """
         Iteruje po kolumnach DataFrame, budując obiekty Question.
 
         Yields:
             Question: Obiekt Question
         """
-        for ind, col in enumerate(df.columns, start=1): 
-            unique_size:int = df[col].dropna().unique().shape[0]
-            total_count:int = df[col].dropna().shape[0]
+        for ind, col in enumerate(self.df.columns, start=1): 
+            unique_size:int = self.df[col].dropna().unique().shape[0]
+            total_count:int = self.df[col].dropna().shape[0]
             question = Question(
                 question=col,
                 index=ind,
-                type=detect_column_type(unique_size, df[col].dtype),
+                type=detect_column_type(unique_size, self.df[col].dtype),
                 unique_count=unique_size,
-                missing_count=df[col].isna().sum(),
+                missing_count=self.df[col].isna().sum(),
                 total_count=total_count,
-                cafeteria=self._iterate_cafeteria(df[col].dropna(), total_count)
+                cafeteria=self._iterate_cafeteria(self.df[col].dropna(), total_count)
             )
             yield question
 

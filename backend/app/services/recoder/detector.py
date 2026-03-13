@@ -26,7 +26,7 @@ def detect_column_type(unique_values:int, column_dtype) -> Literal["nominal", "o
         Poziom zmiennej jako string z listy ["nominal", "ordinal", "continuous", "text"]
     """
 
-    if unique_values < THRESHOLD_5:
+    if unique_values < THRESHOLD_5 and column_dtype == object:
         return ColumnType.nominal.value
     if ((unique_values >= THRESHOLD_5 and unique_values <= THRESHOLD_10) and
          column_dtype == object):
