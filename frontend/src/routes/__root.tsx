@@ -9,7 +9,7 @@ export const Route = createRootRoute({
 function RootComponent() {
   return (
     <>
-    <div className='min-h-screen'>
+    <div className='h-screen overflow-hidden'>
       <Outlet/>
       <TanStackRouterDevtools position="bottom-right" />
     </div>

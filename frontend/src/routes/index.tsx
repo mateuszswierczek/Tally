@@ -2,6 +2,7 @@ import * as React from 'react'
 import { createFileRoute } from '@tanstack/react-router'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { Upload, SlidersHorizontal, BarChart2 } from 'lucide-react'
 
 export const Route = createFileRoute('/')({
   component: HomeComponent,
@@ -9,25 +10,89 @@ export const Route = createFileRoute('/')({
 
 function HomeComponent() {
   return (
-    <div className='left relative border-r border-[#2a3040] items-center justify-around flex flex-col w-1/2 bg-[#181c24] min-h-screen'>
-      <div className='z-1 w-1/2 h-1/2'>
+  <div className='flex flex-row h-screen overflow-hidden'>
+    <div className='left gap-2.5 relative font-["Fraunces"] px-10 py-12 border-r border-[#2a3040] overflow-hidden flex flex-col w-120 h-105 bg-[#181c24] min-h-screen'>
+      <div className='z-1 w-75 h-auto mb-24'>
         <img src="https://raw.githubusercontent.com/Openfield-survey/img-hosting/refs/heads/main/logo-op.png" alt="Logo"/>
       </div>
-      <div className='z-1 flex-row'>
-        <p>Witaj z <p></p>powrotem</p>
-        <h1>Zaloguj się do platformy</h1>
+      <div className='z-1 flex-row mb-20'>
+        <p className='text-4xl font-thin mb-2 text-white'>Witaj z <span className='italic text-[#E8821A]'>powrotem</span></p>
+        <p className='text-[15px] text-[#525c72] font-["DM Sans"] relative mb-10'>Zaloguj się do platformy</p>
       </div>
       <div className='z-1'>
         <form>
           <div className='flex flex-col'>
-          <label htmlFor="login">Login</label>
-          <Input id="login" name="login" type='text'></Input>
-          <label htmlFor="password">Hasło</label>
-          <Input id="password" name="password" type='text'></Input>
+            <label className='text-[13px] mb-1 text-[#525c72] font-["DM_Mono"] relative' htmlFor="login">Login</label>
+            <Input className='input h-10.75 text-[14px] mb-3 bg-[#1e2330] font-["DM_Sans"] outline-hidden text-[#eceef2] border rounded-[8px] border-[#323a4e]'
+              id="login" name="login" type='text' placeholder='Wpisz swój login'></Input>
+            <label className='text-[13px] mb-1 text-[#525c72] font-["DM_Mono"] relative' htmlFor="password">Hasło</label>
+            <div className='relative mb-5'>
+              <Input className='input h-10.75 text-[14px] bg-[#1e2330] font-["DM_Sans"] outline-hidden text-[#eceef2] border rounded-[8px] border-[#323a4e] w-full pr-10' placeholder='*******' id="password" name="password" type='password'></Input>
+              <div className='absolute right-3 top-1/2 -translate-y-1/2 text-[#525c72] text-[16px] cursor-pointer'>👁</div>
+            </div>
           </div>
-        <Button id="submit_btn" type='submit'>Zaloguj się</Button>
+        <Button className='w-full h-10.75 mt-1 relative rounded-[8px] overflow-hidden border-none px-3 text-[14px] font-extrabold cursor-pointer font-["DM_Sans"] bg-[#E8821A] text-white' id="submit_btn" type='submit'>
+      Zaloguj się →
+    </Button>
         </form>
       </div>
+      <div className='z-1 mt-6'>
+        <img src="https://media1.tenor.com/m/-kZOB16tELEAAAAC/this-is-fine-fire.gif" alt="This is fine" className='w-full rounded-[8px] opacity-60' />
+      </div>
+      <div className='mt-auto pt-4 z-1'>
+        <p className='text-[12px] font-["DM_Mono"] text-[#8c909a]'>Tally <span className='ml-1'>v0.1.0</span></p>
+      </div>
     </div>
+    <div className='right w-screen h-screen flex flex-col items-center justify-center bg-[#111318]'>
+      <div className='z-1 w-120 h-60 overflow-hidden'>
+        <img src="https://i.ibb.co/bR6JZ3Kh/1773547344326-removebg-preview.png" className='w-full h-full object-contain scale-250'></img>
+      </div>
+      <div className='z-1 text-center'>
+        <p className='text-[28px] font-["Fraunces"] font-thin text-white mb-2'>Analiza danych <span className='italic text-[#E8821A]'>rynkowych</span></p>
+        <p className='text-[16px] font-["DM_Sans"] text-[#525c72] max-w-xs mx-auto'>Importuj, przetwarzaj i analizuj dane.</p>
+      </div>
+      <div className='z-1 flex flex-row gap-4 mt-8'>
+        <div className='flex flex-col gap-2 bg-[#181c24] border border-[#2a3040] rounded-[10px] px-4 py-3 w-36'>
+          <Upload size={14} className='text-[#E8821A]' />
+          <p className='text-[12px] font-["DM_Sans"] font-semibold text-[#eceef2]'>Import danych</p>
+          <p className='text-[11px] font-["DM_Sans"] text-[#525c72]'>CSV, Excel</p>
+        </div>
+        <div className='flex flex-col gap-2 bg-[#181c24] border border-[#2a3040] rounded-[10px] px-4 py-3 w-36'>
+          <SlidersHorizontal size={14} className='text-[#E8821A]' />
+          <p className='text-[12px] font-["DM_Sans"] font-semibold text-[#eceef2]'>Transformacje</p>
+          <p className='text-[11px] font-["DM_Sans"] text-[#525c72]'>Rekodowanie, filtrowanie</p>
+        </div>
+        <div className='flex flex-col gap-2 bg-[#181c24] border border-[#2a3040] rounded-[10px] px-4 py-3 w-36'>
+          <BarChart2 size={14} className='text-[#E8821A]' />
+          <p className='text-[12px] font-["DM_Sans"] font-semibold text-[#eceef2]'>Analizy</p>
+          <p className='text-[11px] font-["DM_Sans"] text-[#525c72]'>Statystyki, wykresy</p>
+        </div>
+      </div>
+      <div className='z-1 mt-4 bg-[#181c24] border border-[#2a3040] rounded-[10px] px-6 py-4 w-md'>
+        <p className='text-[11px] font-["DM_Mono"] text-[#525c72] mb-3 uppercase tracking-widest'>Roadmapa</p>
+        <div className='flex flex-col'>
+          {[
+            { dot: 'bg-[#4ade80]', label: 'Import danych', desc: 'Obsługa CSV i Excel', status: 'Gotowe' },
+            { dot: 'bg-[#facc15]', label: 'Rekodowanie zmiennych', desc: 'Transformacje i czyszczenie danych', status: 'W trakcie' },
+            { dot: 'bg-[#f87171]', label: 'Analizy statystyczne', desc: 'Korelacje, rozkłady, testy istotności', status: 'Planowane' },
+          ].map(({ dot, label, desc, status }, i, arr) => (
+            <div key={label} className='flex flex-row gap-3'>
+              <div className='flex flex-col items-center'>
+                <span className={`shrink-0 w-2 h-2 rounded-full mt-1.5 ${dot}`}></span>
+                {i < arr.length - 1 && <span className='w-px flex-1 bg-[#2a3040] my-1'></span>}
+              </div>
+              <div className='flex flex-row items-start justify-between w-full pb-3'>
+                <div>
+                  <p className='text-[12px] font-["DM_Sans"] font-semibold text-[#eceef2]'>{label}</p>
+                  <p className='text-[11px] font-["DM_Sans"] text-[#525c72]'>{desc}</p>
+                </div>
+                <span className='text-[10px] font-["DM_Mono"] text-[#525c72] shrink-0 ml-4'>{status}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  </div>
   )
 }
