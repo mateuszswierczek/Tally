@@ -3,6 +3,7 @@ import { createFileRoute } from '@tanstack/react-router'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Upload, SlidersHorizontal, BarChart2 } from 'lucide-react'
+import './login.css'
 
 export const Route = createFileRoute('/')({
   component: HomeComponent,
@@ -12,16 +13,16 @@ function HomeComponent() {
   return (
   <div className='flex flex-row h-screen overflow-hidden'>
     <div className='left gap-2.5 relative font-["Fraunces"] px-10 py-12 border-r border-[#2a3040] overflow-hidden flex flex-col w-120 h-105 bg-[#181c24] min-h-screen'>
-      <div className='z-1 w-75 h-auto mb-24'>
+      <div className='logo z-1 w-75 h-auto mb-24'>
         <img src="https://raw.githubusercontent.com/Openfield-survey/img-hosting/refs/heads/main/logo-op.png" alt="Logo"/>
       </div>
-      <div className='z-1 flex-row mb-20'>
+      <div className='login-heading z-1 flex-row mb-20'>
         <p className='text-4xl font-thin mb-2 text-white'>Witaj z <span className='italic text-[#E8821A]'>powrotem</span></p>
         <p className='text-[15px] text-[#525c72] font-["DM Sans"] relative mb-10'>Zaloguj się do platformy</p>
       </div>
       <div className='z-1'>
-        <form>
-          <div className='flex flex-col'>
+        <form className='form'>
+          <div className='form-div flex flex-col'>
             <label className='text-[13px] mb-1 text-[#525c72] font-["DM_Mono"] relative' htmlFor="login">Login</label>
             <Input className='input h-10.75 text-[14px] mb-3 bg-[#1e2330] font-["DM_Sans"] outline-hidden text-[#eceef2] border rounded-[8px] border-[#323a4e]'
               id="login" name="login" type='text' placeholder='Wpisz swój login'></Input>
@@ -31,7 +32,7 @@ function HomeComponent() {
               <div className='absolute right-3 top-1/2 -translate-y-1/2 text-[#525c72] text-[16px] cursor-pointer'>👁</div>
             </div>
           </div>
-        <Button className='w-full h-10.75 mt-1 relative rounded-[8px] overflow-hidden border-none px-3 text-[14px] font-extrabold cursor-pointer font-["DM_Sans"] bg-[#E8821A] text-white' id="submit_btn" type='submit'>
+        <Button className='btn-login w-full h-10.75 mt-1 relative rounded-[8px] overflow-hidden border-none px-3 text-[14px] font-extrabold cursor-pointer font-["DM_Sans"] bg-[#E8821A] text-white' id="submit_btn" type='submit'>
       Zaloguj się →
     </Button>
         </form>
@@ -43,6 +44,7 @@ function HomeComponent() {
         <p className='text-[12px] font-["DM_Mono"] text-[#8c909a]'>Tally <span className='ml-1'>v0.1.0</span></p>
       </div>
     </div>
+    <div className='divider'></div>
     <div className='right w-screen h-screen flex flex-col items-center justify-center bg-[#111318]'>
       <div className='z-1 w-120 h-60 overflow-hidden'>
         <img src="https://i.ibb.co/bR6JZ3Kh/1773547344326-removebg-preview.png" className='w-full h-full object-contain scale-250'></img>
