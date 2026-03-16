@@ -1,0 +1,21 @@
+.active {
+  border-bottom-width: 4px;
+  border-bottom-style: solid;
+  border-bottom-color: #E8821A;
+}
+
+.active span{
+  color: #eceef2;
+}
+
+.nav-option:hover span{
+  color: #eceef2;
+}
+
+
+@keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.file-input-popup {animation: fadeUp 0.4s ease both;}
