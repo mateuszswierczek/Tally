@@ -1,7 +1,7 @@
 import pandas as pd
 
 from .schema import Question, Cafeteria
-from .detector import detect_column_type, is_missing_unique, assign_missing_code, get_base_question
+from .detector import Detector
 
 class QuestionIterator:
     """Iteruje po kolumnach DataFrame budując listę obiektów Question z kafeterią."""
@@ -13,6 +13,7 @@ class QuestionIterator:
         """
         self.df:pd.DataFrame = df
         self._grouped:dict[str, list[str]] = self._create_iteration_object()
+        self.detector = Detector()
 
     def _create_iteration_object(self):
         """
@@ -26,7 +27,7 @@ class QuestionIterator:
         """
         grouped:dict[str, list[str]]= {}
         for col in self.df.columns:
-            if match := get_base_question(col):
+            if match := self.detector.get_base_question(col):
                 grouped.setdefault(match, []).append(col)
         return grouped
 
@@ -44,7 +45,7 @@ class QuestionIterator:
             question = Question(
                 question=col,
                 index=ind,
-                type=detect_column_type(unique_size, self.df[col].dtype),
+                type=self.detector.detect_column_type(unique_size, self.df[col].dtype),
                 unique_count=unique_size,
                 missing_count=self.df[col].isna().sum(),
                 total_count=total_count,
@@ -66,14 +67,14 @@ class QuestionIterator:
         temp = []
         counts = column.value_counts().T
         for ind, unique in enumerate(column.unique(), start=1):
-            is_missing = is_missing_unique(unique)
+            is_missing = self.detector.is_missing_unique(unique)
             cafeteria = Cafeteria(
                 value = unique,
                 index = ind,
                 n = counts[unique],
                 pct = counts[unique]/total_count,
                 is_missing=is_missing,
-                missing_code=assign_missing_code(unique, is_missing)
+                missing_code=self.detector.assign_missing_code(unique, is_missing)
             )
             temp.append(cafeteria)
         return temp

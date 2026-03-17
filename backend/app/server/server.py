@@ -1,45 +1,99 @@
 # TODO - ARCHITEKTURA:
-# [ ] Prawdziwa baza danych zamiast fake_db = ["admin"]
-# [ ] Hashowanie haseł (np. bcrypt / passlib) — nigdy plaintext
-# [ ] SECRET do zmiennej środowiskowej (.env + python-dotenv)
-# [ ] Odkomentować i podłączyć TokenData — jest zaimportowany, ale nieużywany
-# [ ] Przynajmniej jeden przykładowy chroniony endpoint (np. GET /api/me)
-# [ ] Obsługa wygaśnięcia tokena — refresh token lub odpowiedni komunikat błędu
+# [ ] Prawdziwa baza danych zamiast fake_db
+# [ ] Hashowanie haseł (passlib)
+# [ ] CONSTANTS do zmiennych środowiskowych
+# [ ] Podłączyć TokenData
+# [ ] Chronione endpointy
+# [ ] Obsługa wygaśnięcia tokena — refresh token
 # [ ] Walidacja danych wejściowych
+# [ ] Pooling rate
+# [ ] SlowAPI
+# [ ] Po dodaniu hashowania: Przy sprawdzaniu usera, gdy usera nie ma w bazie, 
+# 'sprawdzić' hasło na DummyHash
 
-# TODO - OPCJONALNIE:
+
+# TODO - PÓŹNIEJ:
 # [ ] Logowanie requestów
 # [ ] Testy jednostkowe dla authenticate_user i create_access_token
 
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
-from fastapi import FastAPI, Depends, HTTPException, status
+from fastapi import FastAPI, Depends, HTTPException, status, UploadFile, File
 from models import User, Token, TokenData
 from jwt.exceptions import InvalidTokenError
 from datetime import datetime, timedelta, timezone
 from typing import Annotated
+from ..services.recoder.recoder import Recoder
+from file_sanitizer import sanitize_excel_file
 
 import jwt
 
-app = FastAPI()
-
-origins = [
+#####################################################################
+# CONSTANTS
+#####################################################################
+ORIGINS = [
 "http://localhost:3001",
 "https://localhost:3001"
 ]
-
 ACCESS_TOKEN_EXPIRES:int = 30
 SECRET = "gasd23j5rthn2qtgfkadsjnjk324"
 ALGORITHM = "HS256"
+MAX_FILE_SIZE = 10 * 1024 * 1024 #10 MB
+
+#####################################################################
+# SERVER SET-UP
+#####################################################################
+app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins = origins,
+    allow_origins = ORIGINS,
     allow_credentials = True,
     allow_methods = ["*"],
     allow_headers = ["*"]
 )
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl='token')
+
+#####################################################################
+# HELPER FUNCTIONS
+#####################################################################
+async def sanitize_excel_file(file: UploadFile):
+    if not file:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail="Brak pliku."
+        )
+    header = await file.read(MAX_FILE_SIZE + 1)
+    await file.seek(0)
+
+    if not file.filename:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail="Brak nazwy pliku."
+        )
+
+    if len(header) > MAX_FILE_SIZE:
+        raise HTTPException(
+            status_code=status.HTTP_413_CONTENT_TOO_LARGE,
+            detail="Plik jest za duży."
+        )
+    
+    if not header.startswith(b'PK\x03\x04'):    
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail="Nieprawidłowy format pliku."
+        )
+
+    if file.content_type != "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet":
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail="Zły content-type."
+        )
+    if not file.filename.endswith(".xlsx"):
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail="Złe rozszerzenie pliku."
+        )
 
 def create_acces_token(data:dict, expires_time:timedelta = timedelta(minutes=30)):
     payload = data.copy()
@@ -66,6 +120,7 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
         detail="Couldn't validate credentails",
         headers={"WWW-authenticate":"Bearer"}
     )
+
     try:
         payload = jwt.decode(token, SECRET, algorithms=[ALGORITHM])
         username = payload.get("sub")
@@ -79,13 +134,15 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
         raise credentials_exception
     return user
 
+#####################################################################
+# ENDPOINTS
+#####################################################################
 @app.get("/health")
 async def health():
     return {"status":"healthy"}
 
 @app.post("/api/auth_user")
 async def auth_users_for_token(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]) -> Token:
-    print(form_data)
     user = authenticate_user(form_data.username, form_data.password)
     if user == False:
         raise HTTPException(
@@ -98,3 +155,10 @@ async def auth_users_for_token(form_data: Annotated[OAuth2PasswordRequestForm, D
                                       expires_time=access_token_expires)
     return Token(access_token=access_token, 
                  token_type="bearer")
+
+@app.post("/api/post_excel")
+async def receive_excel_file(file: UploadFile = File(...), _= Depends(get_current_user)):
+    await sanitize_excel_file(file)
+    recoder = Recoder(file, file.filename)
+    recoder.parser.iterate()
+    pass
