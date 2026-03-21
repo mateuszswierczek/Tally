@@ -27,7 +27,6 @@ from app.services.recoder.recoder import Recoder
 from file_sanitizer import sanitize_excel_file
 from io import BytesIO
 
-
 import logging
 import jwt
 
@@ -129,5 +128,6 @@ async def receive_excel_file(file: UploadFile = File(...), _= Depends(get_curren
     content = await file.read()
     recoder = Recoder(BytesIO(content), file.filename)
     recoder.parser.iterate()
-    mapping = recoder.parser._grouped_data
+    #TODO: Test czy działa
+    mapping = recoder.parser.mapping_data
     return {"mapping":mapping}

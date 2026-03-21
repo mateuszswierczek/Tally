@@ -37,7 +37,9 @@ function RouteComponent() {
     })
 
     if (req.ok){
-      sessionStorage.setItem("excelData", JSON.stringify(req.json()));
+      const data_json = await req.json()
+      const excel_data = data_json["mapping"]
+      sessionStorage.setItem("excelData", JSON.stringify(excel_data));
       navigate({to:"/recoder"})
     }
 
