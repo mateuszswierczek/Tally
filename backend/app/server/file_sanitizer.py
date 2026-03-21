@@ -36,7 +36,7 @@ async def sanitize_excel_file(file: UploadFile):
             detail="Zły content-type."
         )
 
-    if not file.filename.endswith(".xlsx") or not file.filename.endswith(".csv"):
+    if not file.filename.endswith(".xlsx") and not file.filename.endswith(".csv"):
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
             detail="Złe rozszerzenie pliku."

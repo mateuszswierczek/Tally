@@ -24,6 +24,13 @@
     box-shadow: 0 0 0 3px rgba(232,130,26,0.12);
 }
 
+.input:-webkit-autofill,
+.input:-webkit-autofill:hover,
+.input:-webkit-autofill:focus {
+    -webkit-box-shadow: 0 0 0 1000px #1e2330 inset !important;
+    -webkit-text-fill-color: #eceef2 !important;
+}
+
 .left::before{
     content: '';
     position: absolute;

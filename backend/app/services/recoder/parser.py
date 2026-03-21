@@ -13,4 +13,3 @@ class Parser:
     def iterate(self):
         for question in self.iterator.iterate():
             self._grouped_data.append(question)
-            print(question)

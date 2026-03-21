@@ -1,5 +1,5 @@
 # TODO - ARCHITEKTURA:
-# [ ] Prawdziwa baza danych zamiast fake_db
+# [ ] Baza
 # [ ] Hashowanie haseł (passlib)
 # [ ] CONSTANTS do zmiennych środowiskowych
 # [ ] Podłączyć TokenData
@@ -23,11 +23,16 @@ from models import User, Token, TokenData
 from jwt.exceptions import InvalidTokenError
 from datetime import datetime, timedelta, timezone
 from typing import Annotated
-from ..services.recoder.recoder import Recoder
+from app.services.recoder.recoder import Recoder
 from file_sanitizer import sanitize_excel_file
+from io import BytesIO
 
+
+import logging
 import jwt
 
+
+#app/services/recoder/recoder.py
 #####################################################################
 # CONSTANTS
 #####################################################################
@@ -57,43 +62,6 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl='token')
 #####################################################################
 # HELPER FUNCTIONS
 #####################################################################
-async def sanitize_excel_file(file: UploadFile):
-    if not file:
-        raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
-            detail="Brak pliku."
-        )
-    header = await file.read(MAX_FILE_SIZE + 1)
-    await file.seek(0)
-
-    if not file.filename:
-        raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
-            detail="Brak nazwy pliku."
-        )
-
-    if len(header) > MAX_FILE_SIZE:
-        raise HTTPException(
-            status_code=status.HTTP_413_CONTENT_TOO_LARGE,
-            detail="Plik jest za duży."
-        )
-    
-    if not header.startswith(b'PK\x03\x04'):    
-        raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
-            detail="Nieprawidłowy format pliku."
-        )
-
-    if file.content_type != "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet":
-        raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
-            detail="Zły content-type."
-        )
-    if not file.filename.endswith(".xlsx"):
-        raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
-            detail="Złe rozszerzenie pliku."
-        )
 
 def create_acces_token(data:dict, expires_time:timedelta = timedelta(minutes=30)):
     payload = data.copy()
@@ -120,7 +88,6 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
         detail="Couldn't validate credentails",
         headers={"WWW-authenticate":"Bearer"}
     )
-
     try:
         payload = jwt.decode(token, SECRET, algorithms=[ALGORITHM])
         username = payload.get("sub")
@@ -159,6 +126,8 @@ async def auth_users_for_token(form_data: Annotated[OAuth2PasswordRequestForm, D
 @app.post("/api/post_excel")
 async def receive_excel_file(file: UploadFile = File(...), _= Depends(get_current_user)):
     await sanitize_excel_file(file)
-    recoder = Recoder(file, file.filename)
+    content = await file.read()
+    recoder = Recoder(BytesIO(content), file.filename)
     recoder.parser.iterate()
-    pass
+    mapping = recoder.parser._grouped_data
+    return {"mapping":mapping}

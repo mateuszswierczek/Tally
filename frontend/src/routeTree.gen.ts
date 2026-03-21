@@ -12,6 +12,8 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as AuthRouteImport } from './routes/_auth'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ComponentsNavbarRouteImport } from './routes/components/navbar'
+import { Route as AuthRecoderRouteImport } from './routes/_auth/recoder'
+import { Route as AuthProjectsRouteImport } from './routes/_auth/projects'
 import { Route as AuthDashboardRouteImport } from './routes/_auth/dashboard'
 
 const AuthRoute = AuthRouteImport.update({
@@ -28,6 +30,16 @@ const ComponentsNavbarRoute = ComponentsNavbarRouteImport.update({
   path: '/components/navbar',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthRecoderRoute = AuthRecoderRouteImport.update({
+  id: '/recoder',
+  path: '/recoder',
+  getParentRoute: () => AuthRoute,
+} as any)
+const AuthProjectsRoute = AuthProjectsRouteImport.update({
+  id: '/projects',
+  path: '/projects',
+  getParentRoute: () => AuthRoute,
+} as any)
 const AuthDashboardRoute = AuthDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
@@ -37,11 +49,15 @@ const AuthDashboardRoute = AuthDashboardRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/dashboard': typeof AuthDashboardRoute
+  '/projects': typeof AuthProjectsRoute
+  '/recoder': typeof AuthRecoderRoute
   '/components/navbar': typeof ComponentsNavbarRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/dashboard': typeof AuthDashboardRoute
+  '/projects': typeof AuthProjectsRoute
+  '/recoder': typeof AuthRecoderRoute
   '/components/navbar': typeof ComponentsNavbarRoute
 }
 export interface FileRoutesById {
@@ -49,14 +65,28 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_auth': typeof AuthRouteWithChildren
   '/_auth/dashboard': typeof AuthDashboardRoute
+  '/_auth/projects': typeof AuthProjectsRoute
+  '/_auth/recoder': typeof AuthRecoderRoute
   '/components/navbar': typeof ComponentsNavbarRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/dashboard' | '/components/navbar'
+  fullPaths:
+    | '/'
+    | '/dashboard'
+    | '/projects'
+    | '/recoder'
+    | '/components/navbar'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/dashboard' | '/components/navbar'
-  id: '__root__' | '/' | '/_auth' | '/_auth/dashboard' | '/components/navbar'
+  to: '/' | '/dashboard' | '/projects' | '/recoder' | '/components/navbar'
+  id:
+    | '__root__'
+    | '/'
+    | '/_auth'
+    | '/_auth/dashboard'
+    | '/_auth/projects'
+    | '/_auth/recoder'
+    | '/components/navbar'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -88,6 +118,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ComponentsNavbarRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_auth/recoder': {
+      id: '/_auth/recoder'
+      path: '/recoder'
+      fullPath: '/recoder'
+      preLoaderRoute: typeof AuthRecoderRouteImport
+      parentRoute: typeof AuthRoute
+    }
+    '/_auth/projects': {
+      id: '/_auth/projects'
+      path: '/projects'
+      fullPath: '/projects'
+      preLoaderRoute: typeof AuthProjectsRouteImport
+      parentRoute: typeof AuthRoute
+    }
     '/_auth/dashboard': {
       id: '/_auth/dashboard'
       path: '/dashboard'
@@ -100,10 +144,14 @@ declare module '@tanstack/react-router' {
 
 interface AuthRouteChildren {
   AuthDashboardRoute: typeof AuthDashboardRoute
+  AuthProjectsRoute: typeof AuthProjectsRoute
+  AuthRecoderRoute: typeof AuthRecoderRoute
 }
 
 const AuthRouteChildren: AuthRouteChildren = {
   AuthDashboardRoute: AuthDashboardRoute,
+  AuthProjectsRoute: AuthProjectsRoute,
+  AuthRecoderRoute: AuthRecoderRoute,
 }
 
 const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)

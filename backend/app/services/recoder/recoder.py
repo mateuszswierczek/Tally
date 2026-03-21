@@ -1,4 +1,4 @@
-from parser import Parser
+from .parser import Parser
 from bs4 import UnicodeDammit
 from io import BytesIO
 import pandas as pd
@@ -10,11 +10,12 @@ class Recoder:
         self.df: pd.DataFrame | None = None
         self.encoding = self._detect_encoding_with_unicode_dammit(self.file)
         self.df = self._excel_to_dataframe(self.file, self.filename, self.encoding) 
+        print(self.df)
         self.parser = Parser(self.df)
 
     def _detect_encoding_with_unicode_dammit(self, excel:BytesIO) -> str | None:
         """
-        Wykrywa encoding używając UnicodeDammit z Beautiful Soup
+        Wykrywa encoding używając UnicodeDammit
     
         Args:
             excel: zawartośc pliku jako strumień bajtów
@@ -23,7 +24,7 @@ class Recoder:
             str | None
         """
         try:
-            content = excel.read()
+            content =  excel.read()
             suggestion = UnicodeDammit(content)
             return suggestion.original_encoding
         except Exception as e:

@@ -6,7 +6,7 @@
 // [ ] naprawić toggle widoczności hasła 
 
 import { useState } from 'react'
-import { createFileRoute, Navigate, useNavigate } from '@tanstack/react-router'
+import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Upload, SlidersHorizontal, BarChart2 } from 'lucide-react'
@@ -33,8 +33,8 @@ function HomeComponent() {
       body:form_data.toString()})
     
     if (res.ok){
-      const { acces_token } = await res.json();
-      localStorage.setItem('token', acces_token);
+      const { access_token } = await res.json();
+      localStorage.setItem('token', access_token);
       navigate({to: "/dashboard"});
     }
     setError(true)

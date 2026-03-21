@@ -2,6 +2,7 @@ import { createFileRoute } from '@tanstack/react-router'
 import { Navbar } from '../components/navbar'
 import { Button } from '@/components/ui/button'
 import { useState } from 'react'
+import { useNavigate } from '@tanstack/react-router'
 import './navbar.css'
 
 
@@ -11,7 +12,8 @@ export const Route = createFileRoute('/_auth/dashboard')({
 
 function RouteComponent() {
   const [isPopUp, setIsPopUp] = useState<boolean>(false);
-  
+  const navigate = useNavigate();
+
   function handleImportPopUp() {
     setIsPopUp(true ? isPopUp === false : false);
   }
@@ -35,9 +37,9 @@ function RouteComponent() {
     })
 
     if (req.ok){
-      console.log(req.json())
+      sessionStorage.setItem("excelData", JSON.stringify(req.json()));
+      navigate({to:"/recoder"})
     }
-    console.error("brak odp.")
 
   }
 

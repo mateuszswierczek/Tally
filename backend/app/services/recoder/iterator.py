@@ -12,8 +12,8 @@ class QuestionIterator:
             df: DataFrame z danymi ankiety
         """
         self.df:pd.DataFrame = df
-        self._grouped:dict[str, list[str]] = self._create_iteration_object()
         self.detector = Detector()
+        self._grouped:dict[str, list[str]] = self._create_iteration_object()
 
     def _create_iteration_object(self):
         """
@@ -39,17 +39,19 @@ class QuestionIterator:
         Yields:
             Question: Obiekt Question
         """
-        for ind, col in enumerate(self.df.columns, start=1): 
+        for ind, col in enumerate(self.df.columns, start=1):
             unique_size:int = self.df[col].dropna().unique().shape[0]
             total_count:int = self.df[col].dropna().shape[0]
+            column_type = self.detector.detect_column_type(unique_size, self.df[col].dtype)
+
             question = Question(
                 question=col,
                 index=ind,
-                type=self.detector.detect_column_type(unique_size, self.df[col].dtype),
+                type=column_type,
                 unique_count=unique_size,
                 missing_count=self.df[col].isna().sum(),
                 total_count=total_count,
-                cafeteria=self._iterate_cafeteria(self.df[col].dropna(), total_count)
+                cafeteria=self._iterate_cafeteria(self.df[col].dropna(), total_count) if column_type == "nominal" or column_type ==  "ordinal" else None
             )
             yield question
 
