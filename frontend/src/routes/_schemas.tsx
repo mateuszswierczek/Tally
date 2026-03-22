@@ -8,7 +8,8 @@ export const MappingSchema = z.object({
   missing_count: z.int32().nullable(),
   total_count: z.int32().nullable(),
   ignored: z.boolean(),
-  cafeteria: z.array(z.object()).nullable(),
-  subquestions: z.array(z.object()).nullable()
+  cafeteria: z.array(z.record(z.string(), z.any())).nullable(),
+  cafeteria_dump: z.array(z.record(z.string(), z.any())).nullable(),
+  subquestions: z.array(z.record(z.string(), z.any())).nullable()
 })
 

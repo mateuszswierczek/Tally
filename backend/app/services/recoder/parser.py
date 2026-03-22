@@ -1,5 +1,4 @@
 import pandas as pd
-import json
 
 from .iterator import QuestionIterator
 
@@ -15,7 +14,13 @@ class Parser:
     def iterate(self):
         for question in self.iterator.iterate():
             self._grouped_data.append(question)
+        self._create_mapping()
             
     def _create_mapping(self):
-        for question in self._grouped_data:
-            question["cafeteria"] = [json.dumps(c) for c in question["cafeteria"]]
+        self.mapping_data = self._grouped_data
+        for question in self.mapping_data:
+            if question.cafeteria == None:
+                continue
+            question.cafeteria_dump = [dict(c) for c in question.cafeteria]
+        print(self.mapping_data)
+            

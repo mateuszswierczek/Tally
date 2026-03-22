@@ -19,6 +19,7 @@ class Question(BaseModel):
     total_count: int | None
     ignored: bool = False
     cafeteria: list['Cafeteria'] | None = None
+    cafeteria_dump: list[dict] | None = None
     subquestions: list['Subquestion'] | None = None
 
 class Cafeteria(BaseModel):

@@ -51,7 +51,10 @@ class QuestionIterator:
                 unique_count=unique_size,
                 missing_count=self.df[col].isna().sum(),
                 total_count=total_count,
-                cafeteria=self._iterate_cafeteria(self.df[col].dropna(), total_count) if column_type == "nominal" or column_type ==  "ordinal" else None
+                cafeteria=(self._iterate_cafeteria(self.df[col].dropna(), total_count)
+                    if column_type == "nominal" or 
+                    column_type ==  "ordinal" else None)
+
             )
             yield question
 
