@@ -16,7 +16,7 @@ type Mapping = z.infer<typeof MapperSchema>;
 function RouteComponent() {
     const [mapping, setMapping] = useState<Mapping | null>(null);
     const [error, setError] = useState<string | null>(null);
-    const [fuzzyMatching, setFuzzyMatching] = useState<string | null>(null) 
+    const [fuzzyQuestionMatching, setQuestionFuzzyMatching] = useState<string | null>(null) 
 
     useEffect(() => {
         const stored = sessionStorage.getItem('excelData');
@@ -38,8 +38,6 @@ function RouteComponent() {
 
     if (error) return <p style={{ color: "red" }}>{error}</p>;
     if (!mapping) return <p>Ładowanie...</p>;
-
-
         
     return (
         <>
@@ -48,14 +46,12 @@ function RouteComponent() {
                 rounded-2xl border-2 ml-1 mt-1 flex flex-col
                 p-2 overflow-scroll w-[30%] h-full bg-[#181c24] items-center'>
                     <input type='text' className='mb-2 w-[90%] mr-2 bg-white' 
-                    onChange={(e) => {setFuzzyMatching(e.currentTarget.value)}}></input>
+                    onChange={(e) => {setQuestionFuzzyMatching(e.currentTarget.value)}}></input>
                     {mapping && Object.values(mapping).map((item, i) => {
-                        const isVisible = fuzzyMatching == null || 
-                            item.question?.toLowerCase().includes(fuzzyMatching.toLowerCase())
-                         
+                        const isQuestionVisible = fuzzyQuestionMatching == null || 
+                            item.question?.toLowerCase().includes(fuzzyQuestionMatching.toLowerCase())
                         return(
-                            //TODO: Naprawić
-                            <div className='h-full w-full mb-5 z-1'>
+                            <div className={`h-full w-full mb-5 z-1 ${!isQuestionVisible ? 'hidden' : ''}`}>
                                 <div className='h-[calc(100%+10px)] border-[0.5px]
                                     border-[#E8821A] rounded-[5px] w-full bg-[#E8821A] 
                                     flex justify-end items-center pr-0.5 z-0'>
