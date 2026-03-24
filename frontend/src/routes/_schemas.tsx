@@ -12,4 +12,3 @@ export const MappingSchema = z.object({
   cafeteria_dump: z.array(z.record(z.string(), z.any())).nullable(),
   subquestions: z.array(z.record(z.string(), z.any())).nullable()
 })
-
