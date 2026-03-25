@@ -12,3 +12,12 @@ export const MappingSchema = z.object({
   cafeteria_dump: z.array(z.record(z.string(), z.any())).nullable(),
   subquestions: z.array(z.record(z.string(), z.any())).nullable()
 })
+
+export const CafeteriaSchema = z.object({
+  vaule: z.string().nullable(),
+  index: z.int32().nullable(),
+  n: z.int32().nullable(),
+  pct: z.float32().nullable(),
+  is_missing: z.boolean().nullable(),
+  missing_code: z.string().nullable() ?? z.int32().nullable(),
+})
