@@ -42,9 +42,39 @@ function RouteComponent() {
     if (error) return <p style={{ color: "red" }}>{error}</p>;
     if (!mapping) return <p>Ładowanie...</p>;
 
-    function handleMappingChange(e:React.ChangeEvent<HTMLInputElement, HTMLInputElement>){
-        return
+    const DownloadButton = () => {
+        const handleDatabaseDownload = async () => {
+            console.log(JSON.stringify(mapping))
+            
+            const req = await fetch("http://127.0.0.1:8000/api/post_mapping", {
+                method:"POST",
+                headers:{
+                    "Content-Type": "application/json",
+                    "Authorization" : `Bearer ${localStorage.getItem("token")}`
+                },
+                body: JSON.stringify(mapping),
+            })
+            
+            if (!req.ok){
+                console.error("Błąd w bazie")
+                console.log(req.json())
+                return
+            }
+            console.log(req.json())
+        // const file = new Blob([JSON.stringify(mapping)],{
+        //     type:'data:application/vnd.ms-excel;base64'
+        // });
+        // const download_url = URL.createObjectURL(file);
+        // const link = document.createElement('a')
+        // link.href = download_url
+        // link.download = 'Baza.xslx'
+        // link.click()
+        // URL.revokeObjectURL(download_url)
+        }
+        return <button onClick={handleDatabaseDownload}>Pobierz bazę</button>
     }
+
+    
         
     return (
         <div className='bg-[#111318] h-screen w-screen flex flex-col'>
@@ -125,13 +155,13 @@ function RouteComponent() {
                     <p>Test</p>
                 </div>
             </div>
-            <div className='w-full h-full flex flex-row justify-between border rounded-2xl items-center mt-5 mb-5 ml-4 mr-4 text-white bg-[#181c24]'>
+            <div className='w-[98%] h-full flex flex-row justify-between border rounded-2xl items-center mt-5 mb-5 ml-4 mr-4 text-white bg-[#181c24]'>
                 <div className='pl-10'>
                     <span>Zmienne</span>
 
                 </div>
                 <div className='pr-10'>
-                    <Button>Eksport</Button>
+                    <DownloadButton></DownloadButton>
                 </div>
             </div>
         </div>

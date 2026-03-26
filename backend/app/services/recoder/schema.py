@@ -34,3 +34,15 @@ class Cafeteria(BaseModel):
 class Subquestion(Cafeteria):
     """Podpytanie w pytaniu matrycowym."""
     pass 
+
+class Mapping(BaseModel):
+    question: str | None
+    index: int | None
+    type: Literal["ordinal", "nominal", "continuous", "text"]
+    unique_count: int | None
+    missing_count: int | None
+    total_count: int | None
+    ignored: bool = False
+    cafeteria: list | None = None
+    cafeteria_dump: list | None = None
+    subquestions: list | None = None

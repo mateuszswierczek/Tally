@@ -3,7 +3,7 @@ import {z} from 'zod';
 export const MappingSchema = z.object({
   question: z.string().nullable(),
   index: z.int32().nullable(),
-  type: z.string().nullable(),
+  type:z.enum(["ordinal", "nominal", "continuous", "text"]).nullable(), 
   unique_count: z.int32().nullable(),
   missing_count: z.int32().nullable(),
   total_count: z.int32().nullable(),

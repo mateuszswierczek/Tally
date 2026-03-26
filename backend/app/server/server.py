@@ -24,6 +24,7 @@ from jwt.exceptions import InvalidTokenError
 from datetime import datetime, timedelta, timezone
 from typing import Annotated
 from app.services.recoder.recoder import Recoder
+from app.services.recoder.schema import Question, Mapping
 from file_sanitizer import sanitize_excel_file
 from io import BytesIO
 
@@ -128,6 +129,14 @@ async def receive_excel_file(file: UploadFile = File(...), _= Depends(get_curren
     content = await file.read()
     recoder = Recoder(BytesIO(content), file.filename)
     recoder.parser.iterate()
-    #TODO: Test czy działa
     mapping = recoder.parser.mapping_data
     return {"mapping":mapping}
+
+@app.post("/api/post_mapping")
+async def receive_mapping(mapping:list[Question], _= Depends(get_current_user)):
+    #TODO: Add redis for df caching
+    df = Recoder._df
+    print(f"DF: {df}")
+    #mapped_df = Recoder.map_coding(mapping, df)
+
+    return {"status":"connected"}
