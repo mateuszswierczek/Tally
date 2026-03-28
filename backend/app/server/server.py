@@ -128,7 +128,6 @@ async def auth_users_for_token(form_data: Annotated[OAuth2PasswordRequestForm, D
 
 @app.post("/api/post_excel")
 async def receive_excel_file(file: UploadFile = File(...), _= Depends(get_current_user)):
-
     await sanitize_excel_file(file)
     content = await file.read()
     recoder = Recoder(BytesIO(content), file.filename)
