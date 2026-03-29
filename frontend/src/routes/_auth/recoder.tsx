@@ -57,24 +57,19 @@ function RouteComponent() {
             
             if (!req.ok){
                 console.error("Błąd w bazie")
-                console.log(req.json())
                 return
             }
-            console.log(req.json())
-        // const file = new Blob([JSON.stringify(mapping)],{
-        //     type:'data:application/vnd.ms-excel;base64'
-        // });
-        // const download_url = URL.createObjectURL(file);
-        // const link = document.createElement('a')
-        // link.href = download_url
-        // link.download = 'Baza.xslx'
-        // link.click()
-        // URL.revokeObjectURL(download_url)
+            const file = await req.blob()
+            const download_url = URL.createObjectURL(file);
+            const link = document.createElement('a')
+
+            link.href = download_url
+            link.download = 'Baza.zip'
+            link.click()
+            URL.revokeObjectURL(download_url)
         }
         return <button onClick={handleDatabaseDownload}>Pobierz bazę</button>
     }
-
-    
         
     return (
         <div className='bg-[#111318] h-screen w-screen flex flex-col'>

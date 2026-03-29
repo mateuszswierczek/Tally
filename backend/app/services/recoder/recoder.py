@@ -4,7 +4,6 @@ from io import BytesIO
 import pandas as pd
 
 class Recoder:
-
     def __init__(self, file, filename):
         self.file = file
         self.filename = filename

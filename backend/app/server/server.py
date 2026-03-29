@@ -18,12 +18,14 @@
 
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from fastapi.responses import StreamingResponse
 from fastapi import FastAPI, Depends, HTTPException, status, UploadFile, File
 from models import User, Token, TokenData
 from jwt.exceptions import InvalidTokenError
 from datetime import datetime, timedelta, timezone
 from typing import Annotated
 from app.services.recoder.recoder import Recoder
+from app.services.recoder.exporter import write_to_excel, write_to_spss
 from app.services.recoder.mapper import Mapper
 from app.services.recoder.schema import Question, Mapping
 from file_sanitizer import sanitize_excel_file
@@ -141,5 +143,8 @@ async def receive_excel_file(file: UploadFile = File(...), _= Depends(get_curren
 async def receive_mapping(mapping:list[Question], _= Depends(get_current_user)):
     mapper = Mapper("/Users/mateusz/Desktop/Projekty/Tally/Tally/backend/app/server/data.csv")
     mapped_df = mapper.map_coding_onto_database(mapping, mapper.df)
-    print(f"DF: {mapped_df }")
-    return {"status":"connected"}
+    ziped_files = write_to_excel(mapper.df, mapped_df, mapping)
+    return StreamingResponse(ziped_files, 
+                            200, 
+                            media_type="application/zip",
+                            headers={"Content-Disposition": "attachment; filename=Baza danych.zip"})
