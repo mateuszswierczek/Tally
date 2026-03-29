@@ -8,6 +8,10 @@ import re
 
 def write_to_excel(decoded:pd.DataFrame, encodec:pd.DataFrame, mapping:list):
     buffer = io.BytesIO()
+    print("Zakodowana")
+    print(decoded)
+    print("Rozkodowana")
+    print(encodec)
 
     with zipfile.ZipFile(buffer, "w") as zf:
         excel_buffer = io.BytesIO()

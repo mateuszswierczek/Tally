@@ -12,8 +12,9 @@ class Mapper:
             raise ValueError()
 
     def map_coding_onto_database(self, mapping:list[Question], df:pd.DataFrame):
+        df_copy = df.copy()
         for question in mapping:
             if question.cafeteria_dump is None:
                 continue
-            df[question.question] = df[question.question].map({c["value"]: c["index"] for c in question.cafeteria_dump})
-        return df
+            df_copy[question.question] = df_copy[question.question].map({c["value"]: c["index"] for c in question.cafeteria_dump})
+        return df_copy
