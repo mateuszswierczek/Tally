@@ -1,6 +1,7 @@
 import pandas as pd
 
 from .iterator import QuestionIterator
+from .serializer import Serializer
 
 class Parser:
     """
@@ -8,6 +9,7 @@ class Parser:
     """
     def __init__(self, df:pd.DataFrame):
         self.iterator = QuestionIterator(df)
+        self.serializer = Serializer()
         self._grouped_data = []
         self.mapping_data = []
 
@@ -23,4 +25,7 @@ class Parser:
                 continue
             question.cafeteria_dump = [dict(c) for c in question.cafeteria]
         print(self.mapping_data)
+
+    def save_model_to_json(self):
+        self.serializer.serialize(self.mapping_data)
             

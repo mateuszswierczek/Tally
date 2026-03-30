@@ -25,7 +25,7 @@ from jwt.exceptions import InvalidTokenError
 from datetime import datetime, timedelta, timezone
 from typing import Annotated
 from app.services.recoder.recoder import Recoder
-from app.services.recoder.exporter import write_to_excel, write_to_spss
+from app.services.recoder.exporter import write_to_excel
 from app.services.recoder.mapper import Mapper
 from app.services.recoder.schema import Question, Mapping
 from file_sanitizer import sanitize_excel_file
@@ -135,6 +135,7 @@ async def receive_excel_file(file: UploadFile = File(...), _= Depends(get_curren
     recoder = Recoder(BytesIO(content), file.filename)
     recoder.parser.iterate()
     recoder.save_db()
+    recoder.parser.save_model_to_json()
     mapping = recoder.parser.mapping_data
     
     return {"mapping":mapping}
