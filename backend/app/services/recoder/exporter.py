@@ -6,12 +6,8 @@ import io
 import os
 import re
 
-def write_to_excel(decoded:pd.DataFrame, encodec:pd.DataFrame, mapping:list):
+def write_to_excel(decoded:pd.DataFrame, encodec:pd.DataFrame, mapping:list) -> io.BytesIO:
     buffer = io.BytesIO()
-    print("Zakodowana")
-    print(decoded)
-    print("Rozkodowana")
-    print(encodec)
 
     with zipfile.ZipFile(buffer, "w") as zf:
         excel_buffer = io.BytesIO()
@@ -25,8 +21,20 @@ def write_to_excel(decoded:pd.DataFrame, encodec:pd.DataFrame, mapping:list):
     buffer.seek(0)
     return buffer
 
-def write_to_spss(decoded:pd.DataFrame, encodec:list):
+def write_to_spss(decoded:pd.DataFrame, encodec:list) -> io.BytesIO:
+    tmp_path = open_tempfile()
     buffer = io.BytesIO()
+    try:
+        decoded.columns = [sanitize_name(col) for col in decoded.columns]
+        variable_labels = parser_variable_labels(encodec)
+        buffer = write_sav_to_tempfile(decoded, tmp_path, variable_labels)
+    finally:
+        os.remove(tmp_path)
+    
+    buffer.seek(0)
+    return buffer 
+
+def parser_variable_labels(encodec:list) -> dict:
     temp = {}
     for col in encodec:
         if col.type == "continuous":
@@ -35,23 +43,23 @@ def write_to_spss(decoded:pd.DataFrame, encodec:list):
             continue
         if col.cafeteria is None:
             continue
-        temp[col.question] =  {c.index: c.value for c in col.cafeteria}
+        question_sanitized = sanitize_name(col.question)
+        temp[question_sanitized] =  {c.index: c.value for c in col.cafeteria}
+    return temp
 
-    with tempfile.NamedTemporaryFile(suffix=".sav", delete=False) as f:
+def write_sav_to_tempfile(decoded:pd.DataFrame, tmp_path:str, variable_labels:dict):
+    pyreadstat.write_sav(decoded, tmp_path, variable_value_labels=variable_labels)
+    with open(tmp_path, "rb") as f:
+        buffer = io.BytesIO(f.read())
+    return buffer
+
+def open_tempfile() -> str:
+    tmp_path = None
+    with tempfile.NamedTemporaryFile(suffix='.sav', delete=False) as f:
         tmp_path = f.name
+    return tmp_path
 
-    try:
-        decoded.columns = [sanitize_spss_name(col) for col in decoded.columns]
-        pyreadstat.write_sav(decoded, tmp_path, variable_value_labels=temp)
-        with open(tmp_path, "rb") as f:
-            buffer = io.BytesIO(f.read())
-    finally:
-        os.remove(tmp_path)
-
-    buffer.seek(0)
-    return buffer 
-
-def sanitize_spss_name(name: str) -> str:
+def sanitize_name(name: str) -> str:
     name = name.replace(" ", "_")
     name = re.sub(r"[^a-zA-Z0-9_@#$]", "_", name)
     if name and name[0].isdigit():
