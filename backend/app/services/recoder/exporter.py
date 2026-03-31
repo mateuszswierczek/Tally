@@ -21,6 +21,8 @@ def write_to_excel(decoded:pd.DataFrame, encodec:pd.DataFrame, mapping:list) -> 
     buffer.seek(0)
     return buffer
 
+#TODO: Księga kodów
+#TODO: Przepisać na klasę
 def write_to_spss(decoded:pd.DataFrame, encodec:list) -> io.BytesIO:
     tmp_path = open_tempfile()
     buffer = io.BytesIO()

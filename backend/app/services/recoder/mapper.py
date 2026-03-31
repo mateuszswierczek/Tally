@@ -1,9 +1,11 @@
 import pandas as pd
 from .schema import Question
+from .serializer import Serializer
 
 class Mapper:
     def __init__(self, data_path:str):
         self.df = self.load(data_path)
+        self.serializer = Serializer()
 
     def load(self, data_path):
         try:
