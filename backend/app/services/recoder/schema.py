@@ -20,7 +20,11 @@ class Question(BaseModel):
     ignored: bool = False
     cafeteria: list['Cafeteria'] | None = None
     cafeteria_dump: list[dict] | None = None
+<<<<<<< HEAD
     subquestions: list['Subquestion'] | None = None
+=======
+    subquestions: list['Question'] | None = None
+>>>>>>> b6ead16 (Working on frontend parsing)
 
 class Cafeteria(BaseModel):
     """Pojedyncza odpowiedź w kafeterii pytania."""
@@ -31,10 +35,13 @@ class Cafeteria(BaseModel):
     is_missing: bool = False
     missing_code: str | int | None = None
 
+<<<<<<< HEAD
 class Subquestion(Cafeteria):
     """Podpytanie w pytaniu matrycowym."""
     pass 
 
+=======
+>>>>>>> b6ead16 (Working on frontend parsing)
 class Mapping(BaseModel):
     question: str | None
     index: int | None

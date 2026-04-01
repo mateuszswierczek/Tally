@@ -20,7 +20,11 @@ class Recoder:
             raise ValueError("An error occurred with UnicodeDammit") from e
     
     def save_db(self):
+<<<<<<< HEAD
         self.df.to_csv('/Users/mateusz/Desktop/Projekty/Tally/Tally/backend/app/server/data.csv', encoding='utf-8')
+=======
+        self.df.to_csv('/Users/mateusz/Desktop/Projekty/Tally/backend/app/server/data.csv', encoding='utf-8')
+>>>>>>> b6ead16 (Working on frontend parsing)
 
     @staticmethod
     def _excel_to_dataframe(excel:BytesIO, filename:str, encoding:str | None) -> pd.DataFrame:

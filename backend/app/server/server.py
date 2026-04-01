@@ -28,19 +28,29 @@ from app.services.recoder.recoder import Recoder
 from app.services.recoder.exporter import write_to_excel
 from app.services.recoder.mapper import Mapper
 from app.services.recoder.schema import Question, Mapping
+<<<<<<< HEAD
 from file_sanitizer import sanitize_excel_file
 from io import BytesIO
 
 import redis
+=======
+from app.services.analyzer.frequencies import calculate_frequencies_table
+from file_sanitizer import sanitize_excel_file
+from io import BytesIO
+
+>>>>>>> b6ead16 (Working on frontend parsing)
 import logging
 import jwt
 
 db = None
 
+<<<<<<< HEAD
 #app/services/recoder/recoder.py
 #####################################################################
 # CONSTANTS
 #####################################################################
+=======
+>>>>>>> b6ead16 (Working on frontend parsing)
 ORIGINS = [
 "http://localhost:3001",
 "https://localhost:3001"
@@ -50,9 +60,12 @@ SECRET = "gasd23j5rthn2qtgfkadsjnjk324"
 ALGORITHM = "HS256"
 MAX_FILE_SIZE = 10 * 1024 * 1024 #10 MB
 
+<<<<<<< HEAD
 #####################################################################
 # SERVER SET-UP
 #####################################################################
+=======
+>>>>>>> b6ead16 (Working on frontend parsing)
 app = FastAPI()
 
 app.add_middleware(
@@ -64,10 +77,13 @@ app.add_middleware(
 )
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl='token')
 
+<<<<<<< HEAD
 #####################################################################
 # HELPER FUNCTIONS
 #####################################################################
 
+=======
+>>>>>>> b6ead16 (Working on frontend parsing)
 def create_acces_token(data:dict, expires_time:timedelta = timedelta(minutes=30)):
     payload = data.copy()
     payload["exp"] = datetime.now(timezone.utc) + expires_time
@@ -106,9 +122,12 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
         raise credentials_exception
     return user
 
+<<<<<<< HEAD
 #####################################################################
 # ENDPOINTS
 #####################################################################
+=======
+>>>>>>> b6ead16 (Working on frontend parsing)
 @app.get("/health")
 async def health():
     return {"status":"healthy"}
@@ -135,16 +154,26 @@ async def receive_excel_file(file: UploadFile = File(...), _= Depends(get_curren
     recoder = Recoder(BytesIO(content), file.filename)
     recoder.parser.iterate()
     recoder.save_db()
+<<<<<<< HEAD
     recoder.parser.save_model_to_json()
+=======
+>>>>>>> b6ead16 (Working on frontend parsing)
     mapping = recoder.parser.mapping_data
     
     return {"mapping":mapping}
 
 @app.post("/api/post_mapping")
 async def receive_mapping(mapping:list[Question], _= Depends(get_current_user)):
+<<<<<<< HEAD
     mapper = Mapper("/Users/mateusz/Desktop/Projekty/Tally/Tally/backend/app/server/data.csv")
     mapped_df = mapper.map_coding_onto_database(mapping, mapper.df)
     ziped_files = write_to_excel(mapper.df, mapped_df, mapping)
+=======
+    mapper = Mapper("/Users/mateusz/Desktop/Projekty/Tally/backend/app/server/data.csv")
+    mapped_df = mapper.map_coding_onto_database(mapping, mapper.df)
+    ziped_files = write_to_excel(mapper.df, mapped_df, mapping)
+    #calculate_frequencies_table(mapping)
+>>>>>>> b6ead16 (Working on frontend parsing)
     return StreamingResponse(ziped_files, 
                             200, 
                             media_type="application/zip",

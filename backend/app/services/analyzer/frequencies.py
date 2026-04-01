@@ -1,5 +1,6 @@
 import pandas as pd
 from io import BytesIO
+<<<<<<< HEAD
 from app.services.recoder.serializer import Serializer
 
 def calculate_frequencie_table():
@@ -15,3 +16,18 @@ def calculate_frequencie_table():
             #print(question_categorical)
 
 calculate_frequencie_table()
+=======
+from app.services.recoder.schema import Question
+
+def calculate_frequencies_table(mapping:list[Question]):
+    df = pd.read_csv("/Users/mateusz/Desktop/Projekty/Tally/backend/app/server/data.csv")
+    buffer = BytesIO()
+    for col in mapping:
+        if col.cafeteria is None:
+            question = df[col.question]
+
+            continue
+        cafeteria_vals = [c.value for c in col.cafeteria]
+        categorical_question = pd.Categorical(df[col.question], cafeteria_vals)
+        
+>>>>>>> b6ead16 (Working on frontend parsing)

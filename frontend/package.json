@@ -21,6 +21,10 @@
     "vite": "^6.0.3"
   },
   "dependencies": {
+<<<<<<< HEAD
+=======
+    "@dnd-kit/react": "^0.3.2",
+>>>>>>> b6ead16 (Working on frontend parsing)
     "@fontsource-variable/jetbrains-mono": "^5.2.8",
     "@phosphor-icons/react": "^2.1.10",
     "@tanstack/react-router": "^1.117.1",
