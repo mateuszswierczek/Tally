@@ -17,7 +17,6 @@ class QuestionIterator:
                 grouped.setdefault(match, []).append(col)
         return grouped
 
-    #TODO:REFAKTORYZACJA
     def iterate(self) -> Generator[Question]:
         temp_subquestions:list[Question] = []
         index_number = 1
@@ -29,19 +28,7 @@ class QuestionIterator:
             if temp_subquestions:
                 first_question = temp_subquestions[0]
                 if ind == len(self.df.columns):
-                    question = Question(
-                        question=col,
-                        index=index_number,
-                        type=column_type,
-                        unique_count=unique_size,
-                        missing_count=self.df[col].isna().sum(),
-                        total_count=total_count,
-                        cafeteria=(self._iterate_cafeteria(self.df[col].dropna(), total_count) 
-                                if column_type == "nominal" or 
-                                column_type ==  "ordinal" else None),
-                        subquestions = None
-                        )
-                    temp_subquestions.append(question)
+                    temp_subquestions.append(self._make_question(col, index_number, column_type, unique_size, total_count))
                 if (self.detector.get_base_question(col) != self.detector.get_base_question(str(first_question.question)) or ind == len(self.df.columns)):
                     print(len(self.df.columns), ":" , ind, ":", col)
                     yield self._iterate_subquestion(temp_subquestions)
@@ -50,8 +37,16 @@ class QuestionIterator:
 
                 if ind == len(self.df.columns):
                     break 
+            
+            if any(col in cols for cols in self._grouped.values()):
+                temp_subquestions.append(self._make_question(col, index_number, column_type, unique_size, total_count))
+                continue
 
-            question = Question(
+            index_number += 1
+            yield self._make_question(col, index_number, column_type, unique_size, total_count)
+
+    def _make_question(self, col, index_number, column_type, unique_size, total_count) -> Question:
+        question = Question(
                 question=col,
                 index=index_number,
                 type=column_type,
@@ -63,14 +58,7 @@ class QuestionIterator:
                            column_type ==  "ordinal" else None),
                 subquestions = None
                 )
-            
-            if any(col in cols for cols in self._grouped.values()):
-                temp_subquestions.append(question)
-                continue
-
-            index_number += 1
-            yield question
-
+        return question
     def _iterate_cafeteria(self, column:pd.Series, total_count:int) -> list:
         temp = []
         counts = column.value_counts().T
@@ -87,7 +75,6 @@ class QuestionIterator:
             temp.append(cafeteria)
         return temp
 
-    #TODO: Refaktoryzacja 
     def _iterate_subquestion(self, temp_subquestions) -> Question:
         first_question = temp_subquestions[0]
         cafeteria_dict = pd.Series(self._iterate_subquestions_cafeteria(temp_subquestions))
@@ -104,17 +91,15 @@ class QuestionIterator:
         )
         return question
 
-    #TODO:  Nazwy zmiennych, refaktoryzacja
     def _iterate_subquestions_cafeteria(self, subquestion:list[Question]) -> dict:
-        temp_cafe = []
+        cafe_values = []
         for q in subquestion:
             cafe = q.cafeteria
             if cafe:
                 for c in cafe:
-                    temp_cafe.append(c.value)
+                    cafe_values.append(c.value)
         
-        temp_subquestions_set = set(temp_cafe)
-        temp_subquestions_list = list(temp_subquestions_set)
-        subquestion_cafeteria_mapping = {ind:val for ind, val in enumerate(temp_subquestions_list)}
+        unique_cafe_values = set(cafe_values)
+        subquestion_cafeteria_mapping = {ind:val for ind, val in enumerate(list(unique_cafe_values))}
         return subquestion_cafeteria_mapping
         
