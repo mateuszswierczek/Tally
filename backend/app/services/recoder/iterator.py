@@ -16,55 +16,32 @@ class QuestionIterator:
                 grouped.setdefault(match, []).append(col)
         return grouped
 
+    #TODO: W pytaniach matrycowych trzeba zebrać wszystkie unikatowe itemy z subquestion i dodać do parenta
     def iterate(self):
-<<<<<<< HEAD
-        #TODO: Obsługa 'Subquestion'
-=======
         temp_subquestions:list[Question] = []
         index_number = 1
->>>>>>> b6ead16 (Working on frontend parsing)
         for ind, col in enumerate(self.df.columns, start=1):
             unique_size:int = self.df[col].dropna().unique().shape[0]
             total_count:int = self.df[col].dropna().shape[0]
             column_type = self.detector.detect_column_type(unique_size, self.df[col].dtype)
 
-<<<<<<< HEAD
-            question = Question(
-                question=col,
-                index=ind,
-=======
             if temp_subquestions:
                 first_question = temp_subquestions[0]
-                if (first_question and self.detector.get_base_question(col) != self.detector.get_base_question(str(first_question.question))) or (first_question and ind == len(self.df.columns)):
-                    question = Question(
-                        question=self.detector.get_base_question(str(first_question.question)),
-                        index=first_question.index,
-                        type=first_question.type,
-                        unique_count=first_question.unique_count,
-                        missing_count=first_question.missing_count,
-                        total_count=first_question.total_count,
-                        cafeteria=first_question.cafeteria,
-                        subquestions = [q for q in temp_subquestions]
-                    )
+                if ((first_question and
+                    self.detector.get_base_question(col) != self.detector.get_base_question(str(first_question.question)))
+                    or (first_question and ind == len(self.df.columns))):
+                   
+                    yield self._iterate_subquestion(temp_subquestions)
                     temp_subquestions = []
                     index_number += 1
-                    yield question
 
             question = Question(
                 question=col,
                 index=index_number,
->>>>>>> b6ead16 (Working on frontend parsing)
                 type=column_type,
                 unique_count=unique_size,
                 missing_count=self.df[col].isna().sum(),
                 total_count=total_count,
-<<<<<<< HEAD
-                cafeteria=(self._iterate_cafeteria(self.df[col].dropna(), total_count)
-                    if column_type == "nominal" or 
-                    column_type ==  "ordinal" else None)
-
-            )
-=======
                 cafeteria=(self._iterate_cafeteria(self.df[col].dropna(), total_count) 
                            if column_type == "nominal" or 
                            column_type ==  "ordinal" else None),
@@ -77,7 +54,6 @@ class QuestionIterator:
 
             print(col)
             index_number += 1
->>>>>>> b6ead16 (Working on frontend parsing)
             yield question
 
     def _iterate_cafeteria(self, column:pd.Series, total_count:int):
@@ -95,3 +71,33 @@ class QuestionIterator:
             )
             temp.append(cafeteria)
         return temp
+    
+    def _iterate_subquestion(self, temp_subquestions) -> Question:
+        first_question = temp_subquestions[0]
+        cafeteria_dict = pd.Series(self._iterate_subquestions_cafeteria(temp_subquestions))
+        main_question_cafeteria = self._iterate_cafeteria(cafeteria_dict, first_question.total_count)
+        question = Question(
+            question=self.detector.get_base_question(str(first_question.question)),
+            index=first_question.index,
+            type=first_question.type,
+            unique_count=first_question.unique_count,
+            missing_count=first_question.missing_count,
+            total_count=first_question.total_count,
+            cafeteria=main_question_cafeteria,
+            subquestions = [q for q in temp_subquestions]
+        )
+        return question
+    
+    def _iterate_subquestions_cafeteria(self, subquestion:list[Question]):
+        temp_subquestions = []
+        print(subquestion)
+        for q in subquestion:
+            temp_subquestions.append(q.cafeteria)
+        
+        print(temp_subquestions)
+        temp = [val.items() for val in temp_subquestions]
+        temp_subquestions_set = set(temp)
+        temp_subquestions_list = list(temp_subquestions_set)
+        subquestion_cafeteria_mapping = {ind:val for ind, val in enumerate(temp_subquestions_list)}
+        return subquestion_cafeteria_mapping
+        

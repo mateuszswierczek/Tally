@@ -1,12 +1,4 @@
 import { createFileRoute } from '@tanstack/react-router'
-<<<<<<< HEAD
-import { Button } from '@/components/ui/button'
-import { Navbar } from '../components/navbar'
-import { useState } from 'react'
-import { useEffect } from 'react'
-import { MappingSchema, CafeteriaSchema } from '../_schemas'
-import { z } from 'zod';
-=======
 import { Navbar } from '../components/navbar'
 import { useState } from 'react'
 import { useEffect } from 'react'
@@ -15,7 +7,6 @@ import { z } from 'zod';
 import { DragDropProvider } from '@dnd-kit/react'
 import { useSortable, isSortableOperation } from '@dnd-kit/react/sortable'
 import { DragEndEvent } from '@dnd-kit/dom'
->>>>>>> b6ead16 (Working on frontend parsing)
 import './navbar.css'
 
 export const Route = createFileRoute('/_auth/recoder')({
@@ -26,14 +17,6 @@ const MapperSchema = z.array(Schema);
 type Mapping = z.infer<typeof MapperSchema>;
 type Question = z.infer<typeof Schema>;
 
-<<<<<<< HEAD
-function RouteComponent() {
-    const [mapping, setMapping] = useState<Mapping | null>(null);
-    const [error, setError] = useState<string | null>(null);
-    const [fuzzyQuestionMatching, setQuestionFuzzyMatching] = useState<string | null>(null) 
-    const [currentQuestionEdit, setCurrentQuestionEdit] = useState<Question>()
-
-=======
 
 function SortableItem({ id, index }: { id: string; index: number }) {
     const { ref } = useSortable({ id, index });
@@ -66,7 +49,6 @@ function RouteComponent() {
         });
     }
 
->>>>>>> b6ead16 (Working on frontend parsing)
     useEffect(() => {
         const stored = sessionStorage.getItem('excelData');
 
@@ -128,22 +110,14 @@ function RouteComponent() {
                     onChange={(e) => {setQuestionFuzzyMatching(e.currentTarget.value)}}></input>
                     <div className='flex-1 min-h-0 w-full overflow-y-auto'>
                         {mapping && Object.values(mapping).map((item, i) => {
-<<<<<<< HEAD
-=======
                             const isSubquestion = true ? item.subquestions !== null : false
->>>>>>> b6ead16 (Working on frontend parsing)
                             const isQuestionVisible = fuzzyQuestionMatching == null || 
                                 item.question?.toLowerCase().includes(fuzzyQuestionMatching.toLowerCase())
                             return(
                                 <>
                                     {isQuestionVisible &&
-<<<<<<< HEAD
-                                        <div className='h-18 w-full mb-5 z-1 pr-4 pl-4'>
-                                            <div className='h-[calc(100%+10px)] border-[0.5px]
-=======
                                         <div className='h-fit min-h-15 w-full mb-5 z-1 pr-4 pl-4 flex flex-col'>
                                             <div className='border-[0.5px]
->>>>>>> b6ead16 (Working on frontend parsing)
                                                 border-[#E8821A] rounded-[5px] w-full bg-[#E8821A] 
                                                 flex justify-end items-center pr-0.5 z-0'>
                                                     <button key={i} className='text-white p-1.5 h-[95%] w-[95%] bg-[#181c24]' onClick={(_) => {setCurrentQuestionEdit(item)}}>
@@ -154,8 +128,6 @@ function RouteComponent() {
                                                         <p className='overflow-hidden'>{item.question}</p>
                                                     </button>
                                             </div>
-<<<<<<< HEAD
-=======
                                             {
                                                 isSubquestion &&
                                                 <DragDropProvider onDragEnd={(event) => handleDragEnd(event, i)}>
@@ -164,7 +136,6 @@ function RouteComponent() {
                                                     ))}
                                                 </DragDropProvider>
                                             }
->>>>>>> b6ead16 (Working on frontend parsing)
                                         </div>
                                     }
                                 </>
@@ -192,11 +163,7 @@ function RouteComponent() {
                                 <span>Index</span>
                                 <span>Missing type</span>
                             </div>
-<<<<<<< HEAD
-                            {Object.entries(currentQuestionEdit.cafeteria_dump).map(([key, cafe], i) => (
-=======
                             {Object.entries(currentQuestionEdit.cafeteria_dump ?? {}).map(([key, cafe], i) => (
->>>>>>> b6ead16 (Working on frontend parsing)
                                 <div key={i} className='contents'>
                                     <span>{key}</span>
                                     <span>{cafe.value}</span>
