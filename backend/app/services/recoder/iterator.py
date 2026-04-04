@@ -16,6 +16,7 @@ class QuestionIterator:
                 grouped.setdefault(match, []).append(col)
         return grouped
 
+    #TODO:REFAKTORYZACJA
     def iterate(self):
         temp_subquestions:list[Question] = []
         index_number = 1
@@ -26,13 +27,28 @@ class QuestionIterator:
 
             if temp_subquestions:
                 first_question = temp_subquestions[0]
-                if ((first_question and
-                    self.detector.get_base_question(col) != self.detector.get_base_question(str(first_question.question)))
-                    or (first_question and ind == len(self.df.columns))):
-                   
+                if ind == len(self.df.columns):
+                    question = Question(
+                        question=col,
+                        index=index_number,
+                        type=column_type,
+                        unique_count=unique_size,
+                        missing_count=self.df[col].isna().sum(),
+                        total_count=total_count,
+                        cafeteria=(self._iterate_cafeteria(self.df[col].dropna(), total_count) 
+                                if column_type == "nominal" or 
+                                column_type ==  "ordinal" else None),
+                        subquestions = None
+                        )
+                    temp_subquestions.append(question)
+                if (self.detector.get_base_question(col) != self.detector.get_base_question(str(first_question.question)) or ind == len(self.df.columns)):
+                    print(len(self.df.columns), ":" , ind, ":", col)
                     yield self._iterate_subquestion(temp_subquestions)
                     temp_subquestions = []
                     index_number += 1
+
+                if ind == len(self.df.columns):
+                    break 
 
             question = Question(
                 question=col,
@@ -51,7 +67,6 @@ class QuestionIterator:
                 temp_subquestions.append(question)
                 continue
 
-            print(col)
             index_number += 1
             yield question
 
