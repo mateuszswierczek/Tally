@@ -6,7 +6,7 @@ import io
 import os
 import re
 
-def write_to_excel(decoded:pd.DataFrame, encodec:pd.DataFrame, mapping:list) -> io.BytesIO:
+def write_to_excel(decoded:pd.DataFrame, encodec:pd.DataFrame, mapping:list, book_of_codes:pd.DataFrame) -> io.BytesIO:
     buffer = io.BytesIO()
 
     with zipfile.ZipFile(buffer, "w") as zf:
@@ -14,6 +14,7 @@ def write_to_excel(decoded:pd.DataFrame, encodec:pd.DataFrame, mapping:list) -> 
         with pd.ExcelWriter(path=excel_buffer, engine="openpyxl") as writer:
             decoded.to_excel(writer, sheet_name="Baza rozkodowana", index=False)
             encodec.to_excel(writer, sheet_name="Baza zakodowana", index=False)
+            book_of_codes.to_excel(writer, sheet_name="Księga kodów", index=False)
         spss_file = write_to_spss(decoded, mapping)
         zf.writestr("Baza danych.xlsx", excel_buffer.getvalue())
         zf.writestr("Baza danych.sav", spss_file.getvalue())
@@ -49,7 +50,7 @@ def parser_variable_labels(encodec:list) -> dict:
         temp[question_sanitized] =  {c.index: c.value for c in col.cafeteria}
     return temp
 
-def write_sav_to_tempfile(decoded:pd.DataFrame, tmp_path:str, variable_labels:dict):
+def write_sav_to_tempfile(decoded:pd.DataFrame, tmp_path:str, variable_labels:dict) -> io.BytesIO:
     pyreadstat.write_sav(decoded, tmp_path, variable_value_labels=variable_labels)
     with open(tmp_path, "rb") as f:
         buffer = io.BytesIO(f.read())

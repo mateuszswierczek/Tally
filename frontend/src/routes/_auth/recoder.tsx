@@ -190,7 +190,6 @@ function RouteComponent() {
             <div className='w-[98%] h-full flex flex-row justify-between border rounded-2xl items-center mt-5 mb-5 ml-4 mr-4 text-white bg-[#181c24]'>
                 <div className='pl-10'>
                     <span>Zmienne</span>
-
                 </div>
                 <div className='pr-10'>
                     <DownloadButton></DownloadButton>

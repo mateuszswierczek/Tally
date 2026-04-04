@@ -2,6 +2,7 @@ import pandas as pd
 
 from .schema import Question, Cafeteria
 from .detector import Detector
+from typing import Generator
 
 class QuestionIterator:
     def __init__(self, df:pd.DataFrame) -> None:
@@ -9,7 +10,7 @@ class QuestionIterator:
         self.detector = Detector()
         self._grouped:dict[str, list[str]] = self._create_iteration_object()
 
-    def _create_iteration_object(self):
+    def _create_iteration_object(self) -> dict:
         grouped:dict[str, list[str]]= {}
         for col in self.df.columns:
             if match := self.detector.get_base_question(col):
@@ -17,7 +18,7 @@ class QuestionIterator:
         return grouped
 
     #TODO:REFAKTORYZACJA
-    def iterate(self):
+    def iterate(self) -> Generator[Question]:
         temp_subquestions:list[Question] = []
         index_number = 1
         for ind, col in enumerate(self.df.columns, start=1):
@@ -70,7 +71,7 @@ class QuestionIterator:
             index_number += 1
             yield question
 
-    def _iterate_cafeteria(self, column:pd.Series, total_count:int):
+    def _iterate_cafeteria(self, column:pd.Series, total_count:int) -> list:
         temp = []
         counts = column.value_counts().T
         for ind, unique in enumerate(column.unique(), start=1):
@@ -104,7 +105,7 @@ class QuestionIterator:
         return question
 
     #TODO:  Nazwy zmiennych, refaktoryzacja
-    def _iterate_subquestions_cafeteria(self, subquestion:list[Question]):
+    def _iterate_subquestions_cafeteria(self, subquestion:list[Question]) -> dict:
         temp_cafe = []
         for q in subquestion:
             cafe = q.cafeteria
