@@ -16,7 +16,6 @@ class QuestionIterator:
                 grouped.setdefault(match, []).append(col)
         return grouped
 
-    #TODO: W pytaniach matrycowych trzeba zebrać wszystkie unikatowe itemy z subquestion i dodać do parenta
     def iterate(self):
         temp_subquestions:list[Question] = []
         index_number = 1
@@ -71,7 +70,8 @@ class QuestionIterator:
             )
             temp.append(cafeteria)
         return temp
-    
+
+    #TODO: Refaktoryzacja 
     def _iterate_subquestion(self, temp_subquestions) -> Question:
         first_question = temp_subquestions[0]
         cafeteria_dict = pd.Series(self._iterate_subquestions_cafeteria(temp_subquestions))
@@ -87,16 +87,17 @@ class QuestionIterator:
             subquestions = [q for q in temp_subquestions]
         )
         return question
-    
+
+    #TODO:  Nazwy zmiennych, refaktoryzacja
     def _iterate_subquestions_cafeteria(self, subquestion:list[Question]):
-        temp_subquestions = []
-        print(subquestion)
+        temp_cafe = []
         for q in subquestion:
-            temp_subquestions.append(q.cafeteria)
+            cafe = q.cafeteria
+            if cafe:
+                for c in cafe:
+                    temp_cafe.append(c.value)
         
-        print(temp_subquestions)
-        temp = [val.items() for val in temp_subquestions]
-        temp_subquestions_set = set(temp)
+        temp_subquestions_set = set(temp_cafe)
         temp_subquestions_list = list(temp_subquestions_set)
         subquestion_cafeteria_mapping = {ind:val for ind, val in enumerate(temp_subquestions_list)}
         return subquestion_cafeteria_mapping
