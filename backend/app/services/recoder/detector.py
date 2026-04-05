@@ -42,3 +42,6 @@ class Detector:
         if match := self.SUBQUESTION_PATTERN.match(col):
             return match.group(1).strip()
         return None
+    
+    def get_cafeteria_item(self, col: str) -> str | None:
+        return "".join(re.findall(r'\[([^\]]*)\]', col))

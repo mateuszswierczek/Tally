@@ -86,7 +86,7 @@ class QuestionIterator:
             missing_count=first_question.missing_count,
             total_count=first_question.total_count,
             cafeteria=main_question_cafeteria,
-            subquestions = [q for q in temp_subquestions]
+            subquestions = [q for q in temp_subquestions],
         )
         return question
 

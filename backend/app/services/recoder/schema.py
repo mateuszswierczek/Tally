@@ -21,6 +21,7 @@ class Question(BaseModel):
     cafeteria: list['Cafeteria'] | None = None
     cafeteria_dump: list[dict] | None = None
     subquestions: list['Question'] | None = None
+    is_maq:bool = False
 
 class Cafeteria(BaseModel):
     """Pojedyncza odpowiedź w kafeterii pytania."""
