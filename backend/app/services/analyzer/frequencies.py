@@ -1,33 +1,24 @@
 import pandas as pd
-from io import BytesIO
-<<<<<<< HEAD
-from app.services.recoder.serializer import Serializer
 
-def calculate_frequencie_table():
-    df = pd.read_csv("/Users/mateusz/Desktop/Projekty/Tally/Tally/backend/app/server/data.csv")
-    buffer = BytesIO()
-    serializer = Serializer()
-    mapping_data = serializer.deserialize()
-    for col in mapping_data:
-        if col.cafeteria is not None:
-            cafetaria_vars = [c.value for c in col.cafeteria]
-            print(cafetaria_vars)
-            question_categorical = pd.Categorical(df[col.question], cafetaria_vars)
-            #print(question_categorical)
-
-calculate_frequencie_table()
-=======
 from app.services.recoder.schema import Question
+from typing import Generator
 
-def calculate_frequencies_table(mapping:list[Question]):
+def generate_frequencies_table(mapping:list[Question]) -> Generator[pd.DataFrame]:
     df = pd.read_csv("/Users/mateusz/Desktop/Projekty/Tally/backend/app/server/data.csv")
-    buffer = BytesIO()
     for col in mapping:
         if col.cafeteria is None:
             question = df[col.question]
-
-            continue
-        cafeteria_vals = [c.value for c in col.cafeteria]
-        categorical_question = pd.Categorical(df[col.question], cafeteria_vals)
-        
->>>>>>> b6ead16 (Working on frontend parsing)
+            value_counts = question.value_counts().reset_index(name="Częstości")
+            value_counts["% z N"] = value_counts["Częstości"] / col.total_count
+            yield value_counts
+        elif col.subquestions is not None:
+            main_mapping = col.cafeteria
+            pass
+            # for subq in col.subquestions:
+            #     pass
+        else:
+            cafeteria_vals = [c.value for c in col.cafeteria]
+            categorical_question = pd.Categorical(df[col.question], cafeteria_vals)
+            value_counts = categorical_question.value_counts().reset_index(name="Częstości")
+            value_counts["% z N"] = value_counts["Częstości"] / col.total_count
+            yield value_counts

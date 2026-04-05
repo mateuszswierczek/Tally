@@ -20,7 +20,6 @@ class Mapper:
             if question.cafeteria_dump is None:
                 continue
             if question.subquestions is not None:
-                print(question.subquestions)
                 main_mapping = {c["value"]: c["index"] for c in question.cafeteria_dump}
                 for subquestion in question.subquestions:
                     df_copy[subquestion.question] = df_copy[subquestion.question].map(main_mapping)

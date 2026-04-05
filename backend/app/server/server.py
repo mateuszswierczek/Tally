@@ -121,7 +121,6 @@ async def receive_excel_file(file: UploadFile = File(...), _= Depends(get_curren
     recoder.parser.iterate()
     recoder.save_db()
     mapping = recoder.parser.mapping_data
-    
     return {"mapping":mapping}
 
 @app.post("/api/post_mapping")
@@ -129,8 +128,11 @@ async def receive_mapping(mapping:list[Question], _= Depends(get_current_user)):
     mapper = Mapper("/Users/mateusz/Desktop/Projekty/Tally/backend/app/server/data.csv")
     mapped_df = mapper.map_coding_onto_database(mapping, mapper.df)
     book_of_codes = mapper.create_book_of_codes(mapping)
-    ziped_files = write_to_excel(mapper.df, mapped_df, mapping, book_of_codes)
-    #calculate_frequencies_table(mapping)
+    ziped_files = write_to_excel(mapper.df, 
+                                 mapped_df, 
+                                 mapping, 
+                                 book_of_codes)
+    #print(frequencies)
     return StreamingResponse(ziped_files, 
                             200, 
                             media_type="application/zip",

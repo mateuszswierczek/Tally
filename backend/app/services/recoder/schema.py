@@ -16,7 +16,7 @@ class Question(BaseModel):
     type: Literal["ordinal", "nominal", "continuous", "text"]
     unique_count: int | None
     missing_count: int | None
-    total_count: int | None
+    total_count: int
     ignored: bool = False
     cafeteria: list['Cafeteria'] | None = None
     cafeteria_dump: list[dict] | None = None

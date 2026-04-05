@@ -24,7 +24,6 @@ class Parser:
             if question.cafeteria == None:
                 continue
             question.cafeteria_dump = [dict(c) for c in question.cafeteria]
-        print(self.mapping_data)
 
     def save_model_to_json(self):
         self.serializer.serialize(self.mapping_data)

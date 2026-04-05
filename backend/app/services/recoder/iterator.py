@@ -30,7 +30,6 @@ class QuestionIterator:
                 if ind == len(self.df.columns):
                     temp_subquestions.append(self._make_question(col, index_number, column_type, unique_size, total_count))
                 if (self.detector.get_base_question(col) != self.detector.get_base_question(str(first_question.question)) or ind == len(self.df.columns)):
-                    print(len(self.df.columns), ":" , ind, ":", col)
                     yield self._iterate_subquestion(temp_subquestions)
                     temp_subquestions = []
                     index_number += 1
