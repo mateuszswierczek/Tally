@@ -26,10 +26,17 @@ def _create_value_counts_table(question:pd.Series | pd.Categorical | pd.DataFram
     value_counts["% z N"] = value_counts["Częstości"] / col.total_count
     return value_counts
 
+#TODO: Naprawić błąd z nie przypisywaniem się indexów z Recodera
 def _create_matrix_table(subquestions:list[Question], df:pd.DataFrame, col:Question):
     detector = Detector()
+    main_cafeteria_mapping = {cafe.index:cafe.value for cafe in col.cafeteria} #type: ignore
     subquestions_columns = [subq.question for subq in subquestions]
     matrix_df = df[subquestions_columns]
     matrix_df.columns = [detector.get_cafeteria_item(matrix_col) for matrix_col in matrix_df.columns]
+    value_counts = matrix_df.melt().value_counts().reset_index(name="Częstości")
+    pivoted = value_counts.pivot(columns="value", index="variable").fillna(0)
+    pivoted.columns = pivoted.columns.droplevel(0)
+    pivoted = pivoted[list(main_cafeteria_mapping.values())]
+    print(pivoted)
     matrix_table = _create_value_counts_table(matrix_df.T, col)
     return matrix_table
