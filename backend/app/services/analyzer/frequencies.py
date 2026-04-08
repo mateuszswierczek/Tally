@@ -12,8 +12,6 @@ def generate_frequencies_table(mapping:list[Question]) -> Generator[pd.DataFrame
         elif col.subquestions is not None:
             if col.is_maq:
                 pass
-            #TODO: Sprawdzić czy jak policzę kazdy subquestions osobno 
-            # i potem scale wyniki w jedna tabele to czy to ma sens.
             matrix_table = _create_matrix_table(col.subquestions, df, col)
             yield matrix_table
         else:
@@ -26,17 +24,16 @@ def _create_value_counts_table(question:pd.Series | pd.Categorical | pd.DataFram
     value_counts["% z N"] = value_counts["Częstości"] / col.total_count
     return value_counts
 
-#TODO: Naprawić błąd z nie przypisywaniem się indexów z Recodera
+#TODO: Refaktoryzacja + % w kolumnach
 def _create_matrix_table(subquestions:list[Question], df:pd.DataFrame, col:Question):
     detector = Detector()
-    main_cafeteria_mapping = {cafe.index:cafe.value for cafe in col.cafeteria} #type: ignore
+    temp_cafe = {cafe["index"]:cafe["value"] for cafe in col.cafeteria_dump} #type: ignore
+    main_cafeteria_mapping_sorted = dict(sorted(temp_cafe.items()))
     subquestions_columns = [subq.question for subq in subquestions]
     matrix_df = df[subquestions_columns]
     matrix_df.columns = [detector.get_cafeteria_item(matrix_col) for matrix_col in matrix_df.columns]
-    value_counts = matrix_df.melt().value_counts().reset_index(name="Częstości")
+    value_counts = _create_value_counts_table(matrix_df.melt(), col)
     pivoted = value_counts.pivot(columns="value", index="variable").fillna(0)
     pivoted.columns = pivoted.columns.droplevel(0)
-    pivoted = pivoted[list(main_cafeteria_mapping.values())]
-    print(pivoted)
-    matrix_table = _create_value_counts_table(matrix_df.T, col)
-    return matrix_table
+    pivoted = pivoted[list(main_cafeteria_mapping_sorted.values())]
+    return pivoted

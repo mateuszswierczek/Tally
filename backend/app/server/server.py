@@ -40,7 +40,7 @@ ORIGINS = [
 "http://localhost:3001",
 "https://localhost:3001"
 ]
-ACCESS_TOKEN_EXPIRES:int = 30
+ACCESS_TOKEN_EXPIRES:int = 300
 SECRET = "gasd23j5rthn2qtgfkadsjnjk324"
 ALGORITHM = "HS256"
 MAX_FILE_SIZE = 10 * 1024 * 1024 #10 MB
