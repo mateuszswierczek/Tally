@@ -179,6 +179,14 @@ function RouteComponent() {
                                     <span>{cafe.missing_type}</span>
                                 </div>
                             ))}
+                            <div>
+                                <label htmlFor="is_maq" >Wielokrotny wybór?</label>
+                                // TODO: Naprawić, bo się dla wszystkich zapisuje
+                                <input id="is_maq" type="checkbox" name="is_maq" value="maq" onClick={(_) =>{
+                                    currentQuestionEdit.is_maq = !currentQuestionEdit.is_maq
+                                    console.log(currentQuestionEdit.is_maq)
+                                }}></input>
+                            </div>
                         </div> 
                     </div>
                     }

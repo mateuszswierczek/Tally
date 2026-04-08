@@ -10,7 +10,8 @@ export const MappingSchema = z.object({
   ignored: z.boolean(),
   cafeteria: z.array(z.record(z.string(), z.any())).nullable(),
   cafeteria_dump: z.array(z.record(z.string(), z.any())).nullable(),
-  subquestions: z.array(z.record(z.string(), z.any())).nullable()
+  subquestions: z.array(z.record(z.string(), z.any())).nullable(),
+  is_maq: z.boolean(),
 })
 
 export const CafeteriaSchema = z.object({
