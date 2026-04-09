@@ -10,9 +10,9 @@ def generate_frequencies_table(mapping:list[Question]) -> Generator[pd.DataFrame
         if col.cafeteria is None:
             yield _create_value_counts_table(df[col.question], col)
         elif col.subquestions is not None:
+            print(col.is_maq)
             if col.is_maq:
                 complex_table = _create_maq_table(col.subquestions, df, col)
-                pass
             else:
                 complex_table = _create_matrix_table(col.subquestions, df, col)
             yield complex_table #type:ignore

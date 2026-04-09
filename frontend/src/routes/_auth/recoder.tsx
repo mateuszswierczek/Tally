@@ -1,3 +1,4 @@
+
 import { createFileRoute } from '@tanstack/react-router'
 import { Navbar } from '../components/navbar'
 import { useState } from 'react'
@@ -8,7 +9,7 @@ import { DragDropProvider } from '@dnd-kit/react'
 import { useSortable, isSortableOperation } from '@dnd-kit/react/sortable'
 import { DragEndEvent } from '@dnd-kit/dom'
 import './navbar.css'
-
+ 
 export const Route = createFileRoute('/_auth/recoder')({
   component: RouteComponent,
 })
@@ -16,8 +17,8 @@ const Schema = MappingSchema;
 const MapperSchema = z.array(Schema);
 type Mapping = z.infer<typeof MapperSchema>;
 type Question = z.infer<typeof Schema>;
-
-
+ 
+ 
 function SortableItem({ id, index }: { id: string; index: number }) {
     const { ref } = useSortable({ id, index });
     return (
@@ -26,13 +27,17 @@ function SortableItem({ id, index }: { id: string; index: number }) {
         </div>
     );
 }
-
+ 
 function RouteComponent() {
     const [mapping, setMapping] = useState<Mapping | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [fuzzyQuestionMatching, setQuestionFuzzyMatching] = useState<string | null>(null)
-    const [currentQuestionEdit, setCurrentQuestionEdit] = useState<Question>()
-
+    const [currentQuestionIndex, setCurrentQuestionIndex] = useState<number | null>(null);
+ 
+    const currentQuestionEdit = currentQuestionIndex !== null && mapping
+        ? mapping[currentQuestionIndex]
+        : null;
+ 
     function handleDragEnd(event: Parameters<DragEndEvent>[0], questionIndex: number) {
         const { operation } = event;
         if (!isSortableOperation(operation)) return;
@@ -48,17 +53,17 @@ function RouteComponent() {
             return next;
         });
     }
-
+ 
     useEffect(() => {
         const stored = sessionStorage.getItem('excelData');
-
+ 
         if (!stored) {
             console.log("error: brak danych");
             return;
         }
-
+ 
         const result = MapperSchema.safeParse(JSON.parse(stored));
-
+ 
         if (result.success) {
             setMapping(result.data);
         } else {
@@ -66,31 +71,31 @@ function RouteComponent() {
             console.error(result.error.issues);
         }
     }, []);
-
+ 
     if (error) return <p style={{ color: "red" }}>{error}</p>;
     if (!mapping) return <p>Ładowanie...</p>;
-
+ 
     const DownloadButton = () => {
         const handleDatabaseDownload = async () => {
             console.log(JSON.stringify(mapping))
-            
+ 
             const req = await fetch("http://127.0.0.1:8000/api/post_mapping", {
-                method:"POST",
-                headers:{
+                method: "POST",
+                headers: {
                     "Content-Type": "application/json",
-                    "Authorization" : `Bearer ${localStorage.getItem("token")}`
+                    "Authorization": `Bearer ${localStorage.getItem("token")}`
                 },
                 body: JSON.stringify(mapping),
             })
-            
-            if (!req.ok){
+ 
+            if (!req.ok) {
                 console.error("Błąd w bazie")
                 return
             }
             const file = await req.blob()
             const download_url = URL.createObjectURL(file);
             const link = document.createElement('a')
-
+ 
             link.href = download_url
             link.download = 'Baza.zip'
             link.click()
@@ -98,7 +103,7 @@ function RouteComponent() {
         }
         return <button onClick={handleDatabaseDownload}>Pobierz bazę</button>
     }
-        
+ 
     return (
         <div className='bg-[#111318] h-screen w-screen flex flex-col'>
             <Navbar />
@@ -107,26 +112,26 @@ function RouteComponent() {
                 rounded-2xl border-2 ml-1 mt-1 w-full h-full
                 p-2 bg-[#181c24] flex flex-col'>
                     <input type='text' className='w-[90%] mr-2 bg-white mt-4 mb-4'
-                    onChange={(e) => {setQuestionFuzzyMatching(e.currentTarget.value)}}></input>
+                        onChange={(e) => { setQuestionFuzzyMatching(e.currentTarget.value) }}></input>
                     <div className='flex-1 min-h-0 w-full overflow-y-auto'>
                         {mapping && Object.values(mapping).map((item, i) => {
-                            const isSubquestion = true ? item.subquestions !== null : false
-                            const isQuestionVisible = fuzzyQuestionMatching == null || 
+                            const isSubquestion = item.subquestions !== null
+                            const isQuestionVisible = fuzzyQuestionMatching == null ||
                                 item.question?.toLowerCase().includes(fuzzyQuestionMatching.toLowerCase())
-                            return(
+                            return (
                                 <>
                                     {isQuestionVisible &&
                                         <div className='h-fit min-h-15 w-full mb-5 z-1 pr-4 pl-4 flex flex-col'>
                                             <div className='border-[0.5px]
-                                                border-[#E8821A] rounded-[5px] w-full bg-[#E8821A] 
+                                                border-[#E8821A] rounded-[5px] w-full bg-[#E8821A]
                                                 flex justify-end items-center pr-0.5 z-0'>
-                                                    <button key={i} className='text-white p-1.5 h-[95%] w-[95%] bg-[#181c24]' onClick={(_) => {setCurrentQuestionEdit(item)}}>
-                                                        <div className='flex flex-row w-full justify-between'>
-                                                            <p>{item.index}</p>
-                                                            <p className='overflow-clip'>{item.type}</p>
-                                                        </div>
-                                                        <p className='overflow-hidden'>{item.question}</p>
-                                                    </button>
+                                                <button key={i} className='text-white p-1.5 h-[95%] w-[95%] bg-[#181c24]' onClick={() => setCurrentQuestionIndex(i)}>
+                                                    <div className='flex flex-row w-full justify-between'>
+                                                        <p>{item.index}</p>
+                                                        <p className='overflow-clip'>{item.type}</p>
+                                                    </div>
+                                                    <p className='overflow-hidden'>{item.question}</p>
+                                                </button>
                                             </div>
                                             {
                                                 isSubquestion &&
@@ -139,58 +144,65 @@ function RouteComponent() {
                                         </div>
                                     }
                                 </>
-                            )})}
+                            )
+                        })}
                     </div>
                 </div>
                 <div className='grid grid-cols-1 text-white col-span-2 bg-[#181c24] mt-1 ml-4 w-full h-full'>
-                    {currentQuestionEdit && 
-                    <div>
-                        <div className='h-[10%] pt-2 pl-2'>
-                            <p>{currentQuestionEdit.question}</p>
-                            <div className='flex flex-row justify-between w-[80%] '>
-                                <p>Typ: {currentQuestionEdit.type}</p>
-                                <p>Unikatowe wartości: {currentQuestionEdit.unique_count}</p>
-                                <p>Braki danych: {currentQuestionEdit.missing_count}</p>
-                                <p>N: {currentQuestionEdit.total_count}</p>
+                    {currentQuestionEdit &&
+                        <div>
+                            <div className='h-[10%] pt-2 pl-2'>
+                                <p>{currentQuestionEdit.question}</p>
+                                <div className='flex flex-row justify-between w-[80%] '>
+                                    <p>Typ: {currentQuestionEdit.type}</p>
+                                    <p>Unikatowe wartości: {currentQuestionEdit.unique_count}</p>
+                                    <p>Braki danych: {currentQuestionEdit.missing_count}</p>
+                                    <p>N: {currentQuestionEdit.total_count}</p>
+                                </div>
+                            </div>
+                            <div className='grid grid-cols-6 h-fit w-full pl-2'>
+                                <div className='contents font-bold'>
+                                    <span>ID</span>
+                                    <span>Kategoria</span>
+                                    <span>Częstości</span>
+                                    <span>Dystrybucja</span>
+                                    <span>Index</span>
+                                    <span>Missing type</span>
+                                </div>
+                                {Object.entries(currentQuestionEdit.cafeteria_dump ?? {}).map(([key, cafe], i) => (
+                                    <div key={i} className='contents'>
+                                        <span>{key}</span>
+                                        <span>{cafe.value}</span>
+                                        <span>{cafe.n}</span>
+                                        <span>{cafe.distribution}</span>
+                                        <input type='text' value={cafe.index} onChange={(e) => {
+                                            const newCafeteria = [...(currentQuestionEdit.cafeteria_dump ?? [])];
+                                            newCafeteria[i] = { ...newCafeteria[i], index: Number(e.currentTarget.value) };
+                                            setMapping(prev => prev!.map((q, idx) =>
+                                                idx === currentQuestionIndex ? { ...q, cafeteria_dump: newCafeteria } : q
+                                            ));
+                                        }} />
+                                        <span>{cafe.missing_type}</span>
+                                    </div>
+                                ))}
+                                <div>
+                                    <label htmlFor="is_maq">Wielokrotny wybór?</label>
+                                    <input
+                                        id="is_maq"
+                                        type="checkbox"
+                                        name="is_maq"
+                                        checked={!!currentQuestionEdit.is_maq}
+                                        onChange={() => {
+                                            setMapping(prev => prev!.map((q, idx) =>
+                                                idx === currentQuestionIndex ? { ...q, is_maq: !q.is_maq } : q
+                                            ));
+                                        }}
+                                    />
+                                </div>
                             </div>
                         </div>
-                        <div className='grid grid-cols-6 h-fit w-full pl-2'>
-                              <div className='contents font-bold'>
-                                <span>ID</span>
-                                <span>Kategoria</span>
-                                <span>Częstości</span>
-                                <span>Dystrybucja</span>
-                                <span>Index</span>
-                                <span>Missing type</span>
-                            </div>
-                            {Object.entries(currentQuestionEdit.cafeteria_dump ?? {}).map(([key, cafe], i) => (
-                                <div key={i} className='contents'>
-                                    <span>{key}</span>
-                                    <span>{cafe.value}</span>
-                                    <span>{cafe.n}</span>
-                                    <span>{cafe.distribution}</span>
-                                    <input type='text' value={cafe.index} onChange={(e) => {
-                                        const newCafeteria = [...(currentQuestionEdit!.cafeteria_dump ?? [])];
-                                        newCafeteria[i] = { ...newCafeteria[i], index: Number(e.currentTarget.value) };
-                                        const updatedQuestion = { ...currentQuestionEdit!, cafeteria_dump: newCafeteria };
-                                        setCurrentQuestionEdit(updatedQuestion);
-                                        setMapping(mapping!.map(q => q === currentQuestionEdit ? updatedQuestion : q));
-                                }}></input>
-                                    <span>{cafe.missing_type}</span>
-                                </div>
-                            ))}
-                            <div>
-                                <label htmlFor="is_maq" >Wielokrotny wybór?</label>
-                                // TODO: Naprawić, bo się dla wszystkich zapisuje
-                                <input id="is_maq" type="checkbox" name="is_maq" value="maq" onClick={(_) =>{
-                                    currentQuestionEdit.is_maq = !currentQuestionEdit.is_maq
-                                    console.log(currentQuestionEdit.is_maq)
-                                }}></input>
-                            </div>
-                        </div> 
-                    </div>
                     }
-               </div>
+                </div>
                 <div className='w-full'>
                     <p>Test</p>
                 </div>
