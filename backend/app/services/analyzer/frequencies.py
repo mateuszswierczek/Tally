@@ -42,6 +42,7 @@ def _create_maq_table(subquestions:list[Question], df:pd.DataFrame, col:Question
     return matrix_df
 
 #TODO: Refaktoryzacja + % w kolumnach
+#TODO: Naprawić formatowanie tabel jest: N/%/N%/N% powino być N/N/N/%/%/%
 def _create_matrix_table(subquestions:list[Question], df:pd.DataFrame, col:Question):
     detector = Detector()
     assert col.cafeteria_dump
