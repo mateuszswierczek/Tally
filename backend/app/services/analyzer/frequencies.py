@@ -18,12 +18,14 @@ def generate_frequencies_table(mapping:list[Question]) -> Generator[tuple[pd.Dat
                 _add_columnt_tile(complex_table, col)
                 yield complex_table, complex_table.drop(columns="Częstości")
             else:
+                matrix_table = _create_matrix_percentage(col.subquestions, df, col)
+                _add_columnt_tile(matrix_table, col)
                 for inner_col in col.subquestions:
                     categorical_question = _create_value_counts_table(
                         pd.Categorical(df[inner_col.question], 
                         [cafe.value for cafe in col.cafeteria]),col)
                     _add_columnt_tile(categorical_question, inner_col)
-                    yield categorical_question, categorical_question.drop(columns="Częstości")
+                    yield categorical_question, matrix_table
         else:
             categorical_question = _create_value_counts_table(
                 pd.Categorical(df[col.question], 
@@ -33,7 +35,7 @@ def generate_frequencies_table(mapping:list[Question]) -> Generator[tuple[pd.Dat
 
 def _create_value_counts_table(question:pd.Series | pd.Categorical | pd.DataFrame, col:Question):
     value_counts = question.value_counts().reset_index(name="Częstości")
-    value_counts["% z N"] = value_counts["Częstości"] / col.total_count
+    value_counts["% z N"] = (value_counts["Częstości"] / col.total_count) * 100
     return value_counts
 
 def _add_columnt_tile(question:pd.DataFrame, col:Question):
@@ -60,3 +62,16 @@ def _create_maq_table(subquestions:list[Question], df:pd.DataFrame, col:Question
     matrix_df["% z N"] = matrix_df["Częstości"] / col.total_count
     matrix_df["% z Odpowiedzi"] = (matrix_df["Częstości"] / matrix_df["Częstości"].sum()).round(2)
     return matrix_df
+
+def _create_matrix_percentage(subquestions:list[Question], df:pd.DataFrame, col:Question):
+    detector = Detector()
+    assert col.cafeteria_dump
+    subquestions_columns = [subq.question for subq in subquestions]
+    matrix_df = df[subquestions_columns]
+    matrix_df.columns = [detector.get_cafeteria_item(matrix_col) for matrix_col in matrix_df.columns]
+    matrix_columns_len = matrix_df.shape[1] + 1
+    result = _create_value_counts_table(matrix_df.melt(), col)
+    pivoted = result.pivot(columns="value", index="variable").fillna(0)
+    pivoted.columns = pivoted.columns.droplevel(0)
+    pivoted = pivoted.iloc[:, matrix_columns_len:].reset_index()
+    return pivoted

@@ -11,7 +11,7 @@ import os
 import re
 
 STARTCOL:int = 1
-STARTCOL_PERCENTAGE:int = 6
+STARTCOL_PERCENTAGE:int = 8
 BUFFER:int = 2
 
 def write_to_excel(decoded:pd.DataFrame, encodec:pd.DataFrame, mapping:list[Question], book_of_codes:pd.DataFrame) -> io.BytesIO:
@@ -25,6 +25,7 @@ def write_to_excel(decoded:pd.DataFrame, encodec:pd.DataFrame, mapping:list[Ques
             encodec.to_excel(writer, sheet_name="Baza zakodowana", index=False)
             book_of_codes.to_excel(writer, sheet_name="Księga kodów", index=False)
             frequencies_tables = generate_frequencies_table(mapping)
+            #TODO: % z matrycowych rysują się przy kazdej iteracji
             for frequencies_table in frequencies_tables:
                 frequencies_table[0].to_excel(writer, 
                                            startcol=STARTCOL,
