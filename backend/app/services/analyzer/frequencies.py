@@ -26,7 +26,7 @@ def _create_value_counts_table(question:pd.Series | pd.Categorical | pd.DataFram
     value_counts["% z N"] = value_counts["Częstości"] / col.total_count
     return value_counts
 
-#Refaktoryzacja + % w kolumnach
+#Refaktoryzacja
 def _create_maq_table(subquestions:list[Question], df:pd.DataFrame, col:Question):
     detector = Detector()
     assert col.cafeteria_dump
@@ -41,8 +41,7 @@ def _create_maq_table(subquestions:list[Question], df:pd.DataFrame, col:Question
     matrix_df["% z Odpowiedzi"] = (matrix_df["Częstości"] / matrix_df["Częstości"].sum()).round(2)
     return matrix_df
 
-#TODO: Refaktoryzacja + % w kolumnach
-#TODO: Naprawić formatowanie tabel jest: N/%/N%/N% powino być N/N/N/%/%/%
+#TODO: Refaktoryzacja
 def _create_matrix_table(subquestions:list[Question], df:pd.DataFrame, col:Question):
     detector = Detector()
     assert col.cafeteria_dump
@@ -53,6 +52,19 @@ def _create_matrix_table(subquestions:list[Question], df:pd.DataFrame, col:Quest
     matrix_df.columns = [detector.get_cafeteria_item(matrix_col) for matrix_col in matrix_df.columns]
     value_counts = _create_value_counts_table(matrix_df.melt(), col)
     pivoted = value_counts.pivot(columns="value", index="variable").fillna(0)
+
     pivoted.columns = pivoted.columns.droplevel(0)
-    pivoted = pivoted[list(main_cafeteria_mapping_sorted.values())]
+    n_metrics = 2
+    n_values = len(main_cafeteria_mapping_sorted)
+    cafe_values = list(main_cafeteria_mapping_sorted.values())
+
+    sorted_idx = []
+    for block_start in range(0, n_metrics * n_values, n_values):
+        block_cols = pivoted.iloc[:, block_start:block_start + n_values]
+        sorted_idx.extend(
+            [block_start + list(block_cols.columns).index(v) for v in cafe_values]
+        )
+
+    pivoted = pivoted.iloc[:, sorted_idx]
+    print(pivoted)
     return pivoted
