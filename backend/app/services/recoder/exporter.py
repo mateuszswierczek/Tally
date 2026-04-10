@@ -11,6 +11,7 @@ import os
 import re
 
 STARTCOL:int = 1
+STARTCOL_PERCENTAGE:int = 6
 BUFFER:int = 2
 
 def write_to_excel(decoded:pd.DataFrame, encodec:pd.DataFrame, mapping:list[Question], book_of_codes:pd.DataFrame) -> io.BytesIO:
@@ -25,12 +26,17 @@ def write_to_excel(decoded:pd.DataFrame, encodec:pd.DataFrame, mapping:list[Ques
             book_of_codes.to_excel(writer, sheet_name="Księga kodów", index=False)
             frequencies_tables = generate_frequencies_table(mapping)
             for frequencies_table in frequencies_tables:
-                frequencies_table.to_excel(writer, 
+                frequencies_table[0].to_excel(writer, 
                                            startcol=STARTCOL,
                                            startrow=startrow,
                                            sheet_name="Częstości", 
-                                           index=False)    
-                startrow += frequencies_table.shape[0] + BUFFER  
+                                           index=False)
+                frequencies_table[1].to_excel(writer, 
+                                           startcol=STARTCOL_PERCENTAGE,
+                                           startrow=startrow,
+                                           sheet_name="Częstości", 
+                                           index=False) 
+                startrow += frequencies_table[0].shape[0] + BUFFER  
 
         spss_file = write_to_spss(decoded, mapping)
         zf.writestr("Baza danych.xlsx", excel_buffer.getvalue())

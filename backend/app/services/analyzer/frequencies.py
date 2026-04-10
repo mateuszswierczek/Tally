@@ -4,27 +4,47 @@ from app.services.recoder.schema import Question
 from app.services.recoder.detector import Detector
 from typing import Generator
 
-def generate_frequencies_table(mapping:list[Question]) -> Generator[pd.DataFrame]:
+def generate_frequencies_table(mapping:list[Question]) -> Generator[tuple[pd.DataFrame, pd.Series | pd.DataFrame]]:
     df = pd.read_csv("/Users/mateusz/Desktop/Projekty/Tally/backend/app/server/data.csv")
     for col in mapping:
         if col.cafeteria is None:
-            yield _create_value_counts_table(df[col.question], col)
+            other_question = _create_value_counts_table(df[col.question], col) 
+            _add_columnt_tile(other_question, col)
+            yield other_question, other_question.drop(columns="Częstości")
         elif col.subquestions is not None:
             if col.is_maq:
                 complex_table = _create_maq_table(col.subquestions, df, col)
+                assert complex_table is not None
+                _add_columnt_tile(complex_table, col)
+                yield complex_table, complex_table.drop(columns="Częstości")
             else:
-                complex_table = _create_matrix_table(col.subquestions, df, col)
-            assert complex_table is not None
-            yield complex_table
+                for inner_col in col.subquestions:
+                    categorical_question = _create_value_counts_table(
+                        pd.Categorical(df[inner_col.question], 
+                        [cafe.value for cafe in col.cafeteria]),col)
+                    _add_columnt_tile(categorical_question, inner_col)
+                    yield categorical_question, categorical_question.drop(columns="Częstości")
         else:
-            yield _create_value_counts_table(
+            categorical_question = _create_value_counts_table(
                 pd.Categorical(df[col.question], 
                 [cafe.value for cafe in col.cafeteria]),col)
+            _add_columnt_tile(categorical_question, col)
+            yield categorical_question, categorical_question.drop(columns="Częstości")
 
 def _create_value_counts_table(question:pd.Series | pd.Categorical | pd.DataFrame, col:Question):
     value_counts = question.value_counts().reset_index(name="Częstości")
     value_counts["% z N"] = value_counts["Częstości"] / col.total_count
     return value_counts
+
+def _add_columnt_tile(question:pd.DataFrame, col:Question):
+    try:
+        question.rename(columns={"index": " "})
+        question.insert(0, col.question, " ")
+    except:
+        try:
+            question.insert(0, col.question, " ")
+        except:
+            return
 
 #Refaktoryzacja
 def _create_maq_table(subquestions:list[Question], df:pd.DataFrame, col:Question):
@@ -40,31 +60,3 @@ def _create_maq_table(subquestions:list[Question], df:pd.DataFrame, col:Question
     matrix_df["% z N"] = matrix_df["Częstości"] / col.total_count
     matrix_df["% z Odpowiedzi"] = (matrix_df["Częstości"] / matrix_df["Częstości"].sum()).round(2)
     return matrix_df
-
-#TODO: Refaktoryzacja
-def _create_matrix_table(subquestions:list[Question], df:pd.DataFrame, col:Question):
-    detector = Detector()
-    assert col.cafeteria_dump
-    temp_cafe = {cafe["index"]:cafe["value"] for cafe in col.cafeteria_dump}
-    main_cafeteria_mapping_sorted = dict(sorted(temp_cafe.items()))
-    subquestions_columns = [subq.question for subq in subquestions]
-    matrix_df = df[subquestions_columns]
-    matrix_df.columns = [detector.get_cafeteria_item(matrix_col) for matrix_col in matrix_df.columns]
-    value_counts = _create_value_counts_table(matrix_df.melt(), col)
-    pivoted = value_counts.pivot(columns="value", index="variable").fillna(0)
-
-    pivoted.columns = pivoted.columns.droplevel(0)
-    n_metrics = 2
-    n_values = len(main_cafeteria_mapping_sorted)
-    cafe_values = list(main_cafeteria_mapping_sorted.values())
-
-    sorted_idx = []
-    for block_start in range(0, n_metrics * n_values, n_values):
-        block_cols = pivoted.iloc[:, block_start:block_start + n_values]
-        sorted_idx.extend(
-            [block_start + list(block_cols.columns).index(v) for v in cafe_values]
-        )
-
-    pivoted = pivoted.iloc[:, sorted_idx]
-    print(pivoted)
-    return pivoted
