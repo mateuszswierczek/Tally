@@ -126,10 +126,10 @@ function RouteComponent() {
     return (
         <div className='bg-[#111318] h-screen w-screen flex flex-col'>
             <Navbar />
-            <div className='w-full h-[80%] grid grid-cols-4 grid-rows-1 pt-4'>
-                <div className='col-span-1 border-[#111318]
+            <div className='w-full h-[80%] grid grid-cols-4 grid-rows-1 pt-4 ml-4'>
+                <div className='col-span-1 
                 rounded-2xl border-2 ml-1 mt-1 w-full h-full
-                p-2 bg-[#181c24] flex flex-col'>
+                p-2 bg-[#181c24] flex flex-col border-[#2D3748]'>
                     <input type='text' placeholder=' Wyszukaj zmiennej...' className='w-[90%] bg-[#181c24] text-white border border-[#2D3748] rounded-lg mr-2 mt-4 mb-4 ml-4'
                         onChange={(e) => { setQuestionFuzzyMatching(e.currentTarget.value) }}></input>
                     <div className='flex-1 min-h-0 w-full overflow-y-auto'>
@@ -171,7 +171,7 @@ function RouteComponent() {
                     {currentQuestionEdit &&
                         <div>
                             {/* TODO: Zmiana tego na słownik */}
-                            <div className='h-[10%] pt-2 pl-2 bg-[#181c24] mb-5'>
+                            <div className='h-[10%] pt-2 pl-2 bg-[#181c24] border border-[#2D3748] mb-5 rounded-lg'>
                                 <p className='text-xl'>{currentQuestionEdit.question}</p>
                                 <div className='flex flex-row justify-around w-[90%]'>
                                     <span className='flex flex-row text-[18px]'>
@@ -192,15 +192,15 @@ function RouteComponent() {
                                     </span>
                                 </div>
                             </div>
-                            <div className='grid grid-cols-6 h-fit w-full border'>
+                            <div className='grid grid-cols-6 h-fit bg-[#181c24] w-full border border-[#2D3748] rounded-lg'>
                                 {/* TODO:Zmiana na słownik */}
                                 <div className='contents font-bold'>
-                                    <span className='bg-[#2D3748] h-10 flex items-center justify-center mb-5'>ID</span>
-                                    <span className='bg-[#2D3748] h-10 flex items-center justify-center'>Kategoria</span>
-                                    <span className='bg-[#2D3748] h-10 flex items-center justify-center'>Częstości</span>
-                                    <span className='bg-[#2D3748] h-10 flex items-center justify-center'>Dystrybucja</span>
-                                    <span className='bg-[#2D3748] h-10 flex items-center justify-center'>Index</span>
-                                    <span className='bg-[#2D3748] h-10 flex items-center justify-center'>Brak danych</span>
+                                    <span className='bg-[#2D3748] h-15 flex items-center justify-center mb-5 rounded-tl-lg'>ID</span>
+                                    <span className='bg-[#2D3748] h-15 flex items-center justify-center'>Kategoria</span>
+                                    <span className='bg-[#2D3748] h-15 flex items-center justify-center'>Częstości</span>
+                                    <span className='bg-[#2D3748] h-15 flex items-center justify-center'>Dystrybucja</span>
+                                    <span className='bg-[#2D3748] h-15 flex items-center justify-center'>Index</span>
+                                    <span className='bg-[#2D3748] h-15 flex items-center justify-center rounded-r-lg'>Brak danych</span>
                                 </div>
                                 {Object.entries(currentQuestionEdit.cafeteria_dump ?? {}).map(([key, cafe], i) => (
                                     <div key={i} className='contents'>
@@ -208,7 +208,7 @@ function RouteComponent() {
                                         <span className='flex items-center justify-center mb-5'>{cafe.value}</span>
                                         <span className='flex items-center justify-center mb-5'>{cafe.n}</span>
                                         <span className='flex items-center justify-center mb-5'>{cafe.distribution}</span>
-                                        <input className='flex items-center justify-center mb-5 border' type='text' value={cafe.index} onChange={(e) => {
+                                        <input className='index-input flex items-center justify-center mb-5 border' type='text' value={cafe.index} onChange={(e) => {
                                             const newCafeteria = [...(currentQuestionEdit.cafeteria_dump ?? [])];
                                             newCafeteria[i] = { ...newCafeteria[i], index: Number(e.currentTarget.value) };
                                             setMapping(prev => prev!.map((q, idx) =>
@@ -236,11 +236,10 @@ function RouteComponent() {
                         </div>
                     }
                 </div>
-                <div className='w-full'>
-                    <p>Test</p>
+                <div className='col-span-1 ml-8 mr-8 h-full bg-[#181c24] border border-[#2D3748] rounded-2xl'>
                 </div>
             </div>
-            <div className='w-[98%] h-full flex flex-row justify-between border rounded-2xl items-center mt-5 mb-5 ml-4 mr-4 text-white bg-[#181c24]'>
+            <div className='w-[98%] h-full flex flex-row justify-between border border-[#2D3748] rounded-2xl items-center mt-5 mb-5 ml-4 mr-4 text-white bg-[#181c24]'>
                 <div className='pl-10'>
                     <span>Zmienne</span>
                 </div>

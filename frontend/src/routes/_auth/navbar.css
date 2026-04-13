@@ -20,6 +20,11 @@
   background: #F5B800;
 }
 
+.index-input:focus{
+  border-color: #E8821A;
+  box-shadow: 0 1px 12px 0 rgba(232, 130, 26, 0.25);
+  outline: none;
+}
 
 @keyframes fadeUp {
     from { opacity: 0; transform: translateY(16px); }
