@@ -22,7 +22,7 @@ type Question = z.infer<typeof Schema>;
 function SortableItem({ id, index }: { id: string; index: number }) {
     const { ref } = useSortable({ id, index });
     return (
-        <div ref={ref} className='w-full h-fit text-white cursor-grab border mt-2 mb-2 text-center'>
+        <div ref={ref} className='w-[80%] h-fit text-white cursor-grab border mt-2 mb-2 text-center'>
             {id}
         </div>
     );
@@ -52,6 +52,25 @@ function RouteComponent() {
             next[questionIndex] = { ...next[questionIndex], subquestions: subqs };
             return next;
         });
+    }
+
+    function getQuestionType(type:string | null){
+        console.log(type)
+        if (type === "continuous") {
+            return "Ciągła"
+        }
+        else if (type === "nominal"){
+            return "Nominalna"
+        }
+        else if (type === "ordinal"){
+            return "Porządkowa"
+        }
+        else if (type === "text"){
+            return "Tekst"
+        }
+        else {
+            return "Inne"
+        }
     }
  
     useEffect(() => {
@@ -121,14 +140,14 @@ function RouteComponent() {
                             return (
                                 <>
                                     {isQuestionVisible &&
-                                        <div className='h-fit min-h-15 w-full mb-5 z-1 pr-4 pl-4 flex flex-col'>
+                                        <div className='h-fit min-h-15 w-full mb-5 z-1 pr-4 pl-4 flex flex-col items-center'>
                                             <div className='border-[0.5px]
                                                 border-[#E8821A] rounded-[5px] w-full bg-[#E8821A]
                                                 flex justify-end items-center pr-0.5 z-0'>
                                                 <button key={i} className='text-white p-1.5 h-[95%] w-[95%] bg-[#181c24]' onClick={() => setCurrentQuestionIndex(i)}>
                                                     <div className='flex flex-row w-full justify-between'>
                                                         <p>{item.index}</p>
-                                                        <p className='overflow-clip'>{item.type}</p>
+                                                        <p className='overflow-clip'>{getQuestionType(item.type)}</p>
                                                     </div>
                                                     <p className='overflow-hidden'>{item.question}</p>
                                                 </button>
@@ -148,34 +167,48 @@ function RouteComponent() {
                         })}
                     </div>
                 </div>
-                <div className='grid grid-cols-1 text-white col-span-2 bg-[#181c24] mt-1 ml-4 w-full h-full'>
+                <div className='grid grid-cols-1 text-white col-span-2 mt-1 ml-4 w-full h-full'>
                     {currentQuestionEdit &&
                         <div>
-                            <div className='h-[10%] pt-2 pl-2'>
-                                <p>{currentQuestionEdit.question}</p>
-                                <div className='flex flex-row justify-between w-[80%] '>
-                                    <p>Typ: {currentQuestionEdit.type}</p>
-                                    <p>Unikatowe wartości: {currentQuestionEdit.unique_count}</p>
-                                    <p>Braki danych: {currentQuestionEdit.missing_count}</p>
-                                    <p>N: {currentQuestionEdit.total_count}</p>
+                            {/* TODO: Zmiana tego na słownik */}
+                            <div className='h-[10%] pt-2 pl-2 bg-[#181c24] mb-5'>
+                                <p className='text-xl'>{currentQuestionEdit.question}</p>
+                                <div className='flex flex-row justify-around w-[90%]'>
+                                    <span className='flex flex-row text-[18px]'>
+                                        <p className='text-[#4B5563]'>Typ:</p> 
+                                        <p>{getQuestionType(currentQuestionEdit.type)}</p>
+                                    </span>
+                                    <span className='flex flex-row text-[18px]'>
+                                        <p className='text-[#4B5563]'>Unikatowe wartości:</p> 
+                                        <p>{currentQuestionEdit.unique_count}</p>
+                                    </span>
+                                    <span className='flex flex-row text-[18px]'>
+                                        <p className='text-[#4B5563]'>Braki danych:</p> 
+                                        <p>{currentQuestionEdit.missing_count}</p>
+                                    </span>
+                                    <span className='flex flex-row text-[18px]'>
+                                        <p className='text-[#4B5563]'>N:</p> 
+                                        <p>{currentQuestionEdit.total_count}</p>
+                                    </span>
                                 </div>
                             </div>
-                            <div className='grid grid-cols-6 h-fit w-full pl-2'>
+                            <div className='grid grid-cols-6 h-fit w-full border'>
+                                {/* TODO:Zmiana na słownik */}
                                 <div className='contents font-bold'>
-                                    <span>ID</span>
-                                    <span>Kategoria</span>
-                                    <span>Częstości</span>
-                                    <span>Dystrybucja</span>
-                                    <span>Index</span>
-                                    <span>Missing type</span>
+                                    <span className='bg-[#2D3748] h-10 flex items-center justify-center mb-5'>ID</span>
+                                    <span className='bg-[#2D3748] h-10 flex items-center justify-center'>Kategoria</span>
+                                    <span className='bg-[#2D3748] h-10 flex items-center justify-center'>Częstości</span>
+                                    <span className='bg-[#2D3748] h-10 flex items-center justify-center'>Dystrybucja</span>
+                                    <span className='bg-[#2D3748] h-10 flex items-center justify-center'>Index</span>
+                                    <span className='bg-[#2D3748] h-10 flex items-center justify-center'>Brak danych</span>
                                 </div>
                                 {Object.entries(currentQuestionEdit.cafeteria_dump ?? {}).map(([key, cafe], i) => (
                                     <div key={i} className='contents'>
-                                        <span>{key}</span>
-                                        <span>{cafe.value}</span>
-                                        <span>{cafe.n}</span>
-                                        <span>{cafe.distribution}</span>
-                                        <input type='text' value={cafe.index} onChange={(e) => {
+                                        <span className='flex items-center justify-center mb-5'>{key}</span>
+                                        <span className='flex items-center justify-center mb-5'>{cafe.value}</span>
+                                        <span className='flex items-center justify-center mb-5'>{cafe.n}</span>
+                                        <span className='flex items-center justify-center mb-5'>{cafe.distribution}</span>
+                                        <input className='flex items-center justify-center mb-5 border' type='text' value={cafe.index} onChange={(e) => {
                                             const newCafeteria = [...(currentQuestionEdit.cafeteria_dump ?? [])];
                                             newCafeteria[i] = { ...newCafeteria[i], index: Number(e.currentTarget.value) };
                                             setMapping(prev => prev!.map((q, idx) =>
