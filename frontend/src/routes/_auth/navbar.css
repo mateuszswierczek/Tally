@@ -12,6 +12,14 @@
   color: #eceef2;
 }
 
+.import-btn:hover{
+  transform: scale(1.05);
+}
+
+.import-btn:active{
+  background: #F5B800;
+}
+
 
 @keyframes fadeUp {
     from { opacity: 0; transform: translateY(16px); }

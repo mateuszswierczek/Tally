@@ -111,7 +111,7 @@ function RouteComponent() {
                 <div className='col-span-1 border-[#111318]
                 rounded-2xl border-2 ml-1 mt-1 w-full h-full
                 p-2 bg-[#181c24] flex flex-col'>
-                    <input type='text' className='w-[90%] mr-2 bg-white mt-4 mb-4'
+                    <input type='text' placeholder=' Wyszukaj zmiennej...' className='w-[90%] bg-[#181c24] text-white border border-[#2D3748] rounded-lg mr-2 mt-4 mb-4 ml-4'
                         onChange={(e) => { setQuestionFuzzyMatching(e.currentTarget.value) }}></input>
                     <div className='flex-1 min-h-0 w-full overflow-y-auto'>
                         {mapping && Object.values(mapping).map((item, i) => {
