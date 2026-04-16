@@ -20,7 +20,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from fastapi.responses import StreamingResponse
 from fastapi import FastAPI, Depends, HTTPException, status, UploadFile, File
-from models import User, Token, TokenData
+from models import User, Token, TokenData, MappingPayload
 from jwt.exceptions import InvalidTokenError
 from datetime import datetime, timedelta, timezone
 from typing import Annotated
@@ -124,7 +124,8 @@ async def receive_excel_file(file: UploadFile = File(...), _= Depends(get_curren
     return {"mapping":mapping}
 
 @app.post("/api/post_mapping")
-async def receive_mapping(mapping:list[Question], _= Depends(get_current_user)):
+async def receive_mapping(payload:MappingPayload, _= Depends(get_current_user)):
+    mapping = payload.mapping
     mapper = Mapper("/Users/mateusz/Desktop/Projekty/Tally/backend/app/server/data.csv")
     mapped_df = mapper.map_coding_onto_database(mapping, mapper.df)
     book_of_codes = mapper.create_book_of_codes(mapping)
@@ -132,7 +133,6 @@ async def receive_mapping(mapping:list[Question], _= Depends(get_current_user)):
                                  mapped_df, 
                                  mapping, 
                                  book_of_codes)
-    #print(frequencies)
     return StreamingResponse(ziped_files, 
                             200, 
                             media_type="application/zip",

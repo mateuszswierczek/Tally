@@ -1,15 +1,15 @@
 
 import { createFileRoute } from '@tanstack/react-router'
-import { Navbar } from '../components/navbar'
 import { useState } from 'react'
-import { useEffect } from 'react'
 import { MappingSchema } from '../-schemas'
 import { z } from 'zod';
 import { DragDropProvider } from '@dnd-kit/react'
 import { useSortable, isSortableOperation } from '@dnd-kit/react/sortable'
 import { DragEndEvent } from '@dnd-kit/dom'
-import './navbar.css'
- 
+import { useMapping } from '@/context/MappingContext'
+
+
+
 export const Route = createFileRoute('/_auth/recoder')({
   component: RouteComponent,
 })
@@ -29,10 +29,11 @@ function SortableItem({ id, index }: { id: string; index: number }) {
 }
  
 function RouteComponent() {
-    const [mapping, setMapping] = useState<Mapping | null>(null);
+    const {mapping, setMapping} = useMapping();
     const [error, setError] = useState<string | null>(null);
     const [fuzzyQuestionMatching, setQuestionFuzzyMatching] = useState<string | null>(null)
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState<number | null>(null);
+    console.log("tutaj")
  
     const currentQuestionEdit = currentQuestionIndex !== null && mapping
         ? mapping[currentQuestionIndex]
@@ -55,7 +56,6 @@ function RouteComponent() {
     }
 
     function getQuestionType(type:string | null){
-        console.log(type)
         if (type === "continuous") {
             return "Ciągła"
         }
@@ -72,75 +72,29 @@ function RouteComponent() {
             return "Inne"
         }
     }
- 
-    useEffect(() => {
-        const stored = sessionStorage.getItem('excelData');
- 
-        if (!stored) {
-            console.log("error: brak danych");
-            return;
-        }
- 
-        const result = MapperSchema.safeParse(JSON.parse(stored));
- 
-        if (result.success) {
-            setMapping(result.data);
-        } else {
-            setError(result.error.toString());
-            console.error(result.error.issues);
-        }
-    }, []);
- 
+     
     if (error) return <p style={{ color: "red" }}>{error}</p>;
-    if (!mapping) return <p>Ładowanie...</p>;
- 
-    const DownloadButton = () => {
-        const handleDatabaseDownload = async () => {
-            console.log(JSON.stringify(mapping))
- 
-            const req = await fetch("http://127.0.0.1:8000/api/post_mapping", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${localStorage.getItem("token")}`
-                },
-                body: JSON.stringify(mapping),
-            })
- 
-            if (!req.ok) {
-                console.error("Błąd w bazie")
-                return
-            }
-            const file = await req.blob()
-            const download_url = URL.createObjectURL(file);
-            const link = document.createElement('a')
- 
-            link.href = download_url
-            link.download = 'Baza.zip'
-            link.click()
-            URL.revokeObjectURL(download_url)
-        }
-        return <button onClick={handleDatabaseDownload}>Pobierz bazę</button>
-    }
- 
+    if (!mapping) return <div>
+        <p>Brak bazy</p>
+    </div>;
+
     return (
-        <div className='bg-[#111318] h-screen w-screen flex flex-col'>
-            <Navbar />
-            <div className='w-full h-[80%] grid grid-cols-4 grid-rows-1 pt-4 ml-4'>
+        <div className='bg-[#111318] flex flex-col w-full h-full overflow-hidden'>
+            <div className='w-full flex-1 grid grid-cols-4 pt-4 ml-4 min-h-0'>
                 <div className='col-span-1 
-                rounded-2xl border-2 ml-1 mt-1 w-full h-full
+                rounded-2xl border-2 ml-1 mt-1 w-full h-full overflow-hidden
                 p-2 bg-[#181c24] flex flex-col border-[#2D3748]'>
                     <input type='text' placeholder=' Wyszukaj zmiennej...' className='w-[90%] bg-[#181c24] text-white border border-[#2D3748] rounded-lg mr-2 mt-4 mb-4 ml-4'
                         onChange={(e) => { setQuestionFuzzyMatching(e.currentTarget.value) }}></input>
                     <div className='flex-1 min-h-0 w-full overflow-y-auto'>
-                        {mapping && Object.values(mapping).map((item, i) => {
+                        {mapping && mapping.map((item, i) => {
                             const isSubquestion = item.subquestions !== null
                             const isQuestionVisible = fuzzyQuestionMatching == null ||
                                 item.question?.toLowerCase().includes(fuzzyQuestionMatching.toLowerCase())
                             return (
-                                <>
+                                <div>
                                     {isQuestionVisible &&
-                                        <div className='h-fit min-h-15 w-full mb-5 z-1 pr-4 pl-4 flex flex-col items-center'>
+                                        <div className='h-fit min-h-15 w-full mb-5 z-1 pr-4 pl-4 flex flex-col items-center '>
                                             <div className='border-[0.5px]
                                                 border-[#E8821A] rounded-[5px] w-full bg-[#E8821A]
                                                 flex justify-end items-center pr-0.5 z-0'>
@@ -162,7 +116,7 @@ function RouteComponent() {
                                             }
                                         </div>
                                     }
-                                </>
+                                </div>
                             )
                         })}
                     </div>
@@ -171,7 +125,7 @@ function RouteComponent() {
                     {currentQuestionEdit &&
                         <div>
                             {/* TODO: Zmiana tego na słownik */}
-                            <div className='h-[10%] pt-2 pl-2 bg-[#181c24] border border-[#2D3748] mb-5 rounded-lg'>
+                            <div className='h-fit pt-2 pl-2 bg-[#181c24] border border-[#2D3748] mb-5 rounded-lg'>
                                 <p className='text-xl'>{currentQuestionEdit.question}</p>
                                 <div className='flex flex-row justify-around w-[90%]'>
                                     <span className='flex flex-row text-[18px]'>
@@ -237,14 +191,6 @@ function RouteComponent() {
                     }
                 </div>
                 <div className='col-span-1 ml-8 mr-8 h-full bg-[#181c24] border border-[#2D3748] rounded-2xl'>
-                </div>
-            </div>
-            <div className='w-[98%] h-full flex flex-row justify-between border border-[#2D3748] rounded-2xl items-center mt-5 mb-5 ml-4 mr-4 text-white bg-[#181c24]'>
-                <div className='pl-10'>
-                    <span>Zmienne</span>
-                </div>
-                <div className='pr-10'>
-                    <DownloadButton></DownloadButton>
                 </div>
             </div>
         </div>

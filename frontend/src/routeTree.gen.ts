@@ -11,10 +11,11 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as AuthRouteImport } from './routes/_auth'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as ComponentsNavbarRouteImport } from './routes/components/navbar'
+import { Route as ComponentsSubnavbarRouteImport } from './routes/components/Subnavbar'
 import { Route as AuthRecoderRouteImport } from './routes/_auth/recoder'
 import { Route as AuthProjectsRouteImport } from './routes/_auth/projects'
 import { Route as AuthDashboardRouteImport } from './routes/_auth/dashboard'
+import { Route as AuthCrosstablesRouteImport } from './routes/_auth/crosstables'
 
 const AuthRoute = AuthRouteImport.update({
   id: '/_auth',
@@ -25,9 +26,9 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ComponentsNavbarRoute = ComponentsNavbarRouteImport.update({
-  id: '/components/navbar',
-  path: '/components/navbar',
+const ComponentsSubnavbarRoute = ComponentsSubnavbarRouteImport.update({
+  id: '/components/Subnavbar',
+  path: '/components/Subnavbar',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRecoderRoute = AuthRecoderRouteImport.update({
@@ -45,54 +46,70 @@ const AuthDashboardRoute = AuthDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => AuthRoute,
 } as any)
+const AuthCrosstablesRoute = AuthCrosstablesRouteImport.update({
+  id: '/crosstables',
+  path: '/crosstables',
+  getParentRoute: () => AuthRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/crosstables': typeof AuthCrosstablesRoute
   '/dashboard': typeof AuthDashboardRoute
   '/projects': typeof AuthProjectsRoute
   '/recoder': typeof AuthRecoderRoute
-  '/components/navbar': typeof ComponentsNavbarRoute
+  '/components/Subnavbar': typeof ComponentsSubnavbarRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/crosstables': typeof AuthCrosstablesRoute
   '/dashboard': typeof AuthDashboardRoute
   '/projects': typeof AuthProjectsRoute
   '/recoder': typeof AuthRecoderRoute
-  '/components/navbar': typeof ComponentsNavbarRoute
+  '/components/Subnavbar': typeof ComponentsSubnavbarRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_auth': typeof AuthRouteWithChildren
+  '/_auth/crosstables': typeof AuthCrosstablesRoute
   '/_auth/dashboard': typeof AuthDashboardRoute
   '/_auth/projects': typeof AuthProjectsRoute
   '/_auth/recoder': typeof AuthRecoderRoute
-  '/components/navbar': typeof ComponentsNavbarRoute
+  '/components/Subnavbar': typeof ComponentsSubnavbarRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/crosstables'
     | '/dashboard'
     | '/projects'
     | '/recoder'
-    | '/components/navbar'
+    | '/components/Subnavbar'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/dashboard' | '/projects' | '/recoder' | '/components/navbar'
+  to:
+    | '/'
+    | '/crosstables'
+    | '/dashboard'
+    | '/projects'
+    | '/recoder'
+    | '/components/Subnavbar'
   id:
     | '__root__'
     | '/'
     | '/_auth'
+    | '/_auth/crosstables'
     | '/_auth/dashboard'
     | '/_auth/projects'
     | '/_auth/recoder'
-    | '/components/navbar'
+    | '/components/Subnavbar'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthRoute: typeof AuthRouteWithChildren
-  ComponentsNavbarRoute: typeof ComponentsNavbarRoute
+  ComponentsSubnavbarRoute: typeof ComponentsSubnavbarRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -111,11 +128,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/components/navbar': {
-      id: '/components/navbar'
-      path: '/components/navbar'
-      fullPath: '/components/navbar'
-      preLoaderRoute: typeof ComponentsNavbarRouteImport
+    '/components/Subnavbar': {
+      id: '/components/Subnavbar'
+      path: '/components/Subnavbar'
+      fullPath: '/components/Subnavbar'
+      preLoaderRoute: typeof ComponentsSubnavbarRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_auth/recoder': {
@@ -139,16 +156,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthDashboardRouteImport
       parentRoute: typeof AuthRoute
     }
+    '/_auth/crosstables': {
+      id: '/_auth/crosstables'
+      path: '/crosstables'
+      fullPath: '/crosstables'
+      preLoaderRoute: typeof AuthCrosstablesRouteImport
+      parentRoute: typeof AuthRoute
+    }
   }
 }
 
 interface AuthRouteChildren {
+  AuthCrosstablesRoute: typeof AuthCrosstablesRoute
   AuthDashboardRoute: typeof AuthDashboardRoute
   AuthProjectsRoute: typeof AuthProjectsRoute
   AuthRecoderRoute: typeof AuthRecoderRoute
 }
 
 const AuthRouteChildren: AuthRouteChildren = {
+  AuthCrosstablesRoute: AuthCrosstablesRoute,
   AuthDashboardRoute: AuthDashboardRoute,
   AuthProjectsRoute: AuthProjectsRoute,
   AuthRecoderRoute: AuthRecoderRoute,
@@ -159,7 +185,7 @@ const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthRoute: AuthRouteWithChildren,
-  ComponentsNavbarRoute: ComponentsNavbarRoute,
+  ComponentsSubnavbarRoute: ComponentsSubnavbarRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

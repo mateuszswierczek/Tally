@@ -18,31 +18,37 @@ class QuestionIterator:
         return grouped
 
     def iterate(self) -> Generator[Question]:
-        temp_subquestions:list[Question] = []
+        temp_subquestions: list[Question] = []
         index_number = 1
-        for ind, col in enumerate(self.df.columns, start=1):
-            unique_size:int = self.df[col].dropna().unique().shape[0]
-            total_count:int = self.df[col].dropna().shape[0]
+        
+        for _, col in enumerate(self.df.columns, start=1):
+            unique_size: int = self.df[col].dropna().unique().shape[0]
+            total_count: int = self.df[col].dropna().shape[0]
             column_type = self.detector.detect_column_type(unique_size, self.df[col].dtype)
 
-            if temp_subquestions:
-                first_question = temp_subquestions[0]
-                if ind == len(self.df.columns):
-                    temp_subquestions.append(self._make_question(col, index_number, column_type, unique_size, total_count))
-                if (self.detector.get_base_question(col) != self.detector.get_base_question(str(first_question.question)) or ind == len(self.df.columns)):
+            is_grouped = any(col in cols for cols in self._grouped.values())
+
+            if is_grouped:
+                if temp_subquestions:
+                    first_q = temp_subquestions[0]
+                    if self.detector.get_base_question(col) != self.detector.get_base_question(str(first_q.question)):
+                        yield self._iterate_subquestion(temp_subquestions)
+                        temp_subquestions = []
+                        index_number += 1
+                
+                temp_subquestions.append(self._make_question(col, index_number, column_type, unique_size, total_count))
+                
+            else:
+                if temp_subquestions:
                     yield self._iterate_subquestion(temp_subquestions)
                     temp_subquestions = []
                     index_number += 1
+                
+                yield self._make_question(col, index_number, column_type, unique_size, total_count)
+                index_number += 1
 
-                if ind == len(self.df.columns):
-                    break 
-            
-            if any(col in cols for cols in self._grouped.values()):
-                temp_subquestions.append(self._make_question(col, index_number, column_type, unique_size, total_count))
-                continue
-
-            index_number += 1
-            yield self._make_question(col, index_number, column_type, unique_size, total_count)
+        if temp_subquestions:
+            yield self._iterate_subquestion(temp_subquestions)
 
     def _make_question(self, col, index_number, column_type, unique_size, total_count) -> Question:
         question = Question(

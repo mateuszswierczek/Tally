@@ -49,16 +49,41 @@ def write_to_excel(decoded:pd.DataFrame, encodec:pd.DataFrame, mapping:list[Ques
 #TODO: Przepisać na klasę
 def write_to_spss(decoded:pd.DataFrame, encodec:list) -> io.BytesIO:
     tmp_path = open_tempfile()
-    buffer = io.BytesIO()
+    
     try:
-        decoded.columns = [sanitize_name(col) for col in decoded.columns]
+        new_columns = [sanitize_name(col) for col in decoded.columns]
+        unique_cols = []
+        counts = {}
+        
+        for col in new_columns:
+            if col not in counts:
+                unique_cols.append(col)
+                counts[col] = 1
+            else:
+                new_name = f"{col}_{counts[col]}"
+                unique_cols.append(new_name)
+                counts[col] += 1
+        decoded.columns = unique_cols
         variable_labels = parser_variable_labels(encodec)
         buffer = write_sav_to_tempfile(decoded, tmp_path, variable_labels)
+        
     finally:
-        os.remove(tmp_path)
+        if os.path.exists(tmp_path):
+            os.remove(tmp_path)
     
     buffer.seek(0)
-    return buffer 
+    return buffer
+    # tmp_path = open_tempfile()
+    # buffer = io.BytesIO()
+    # try:
+    #     decoded.columns = [sanitize_name(col) for col in decoded.columns]
+    #     variable_labels = parser_variable_labels(encodec)
+    #     buffer = write_sav_to_tempfile(decoded, tmp_path, variable_labels)
+    # finally:
+    #     os.remove(tmp_path)
+    
+    # buffer.seek(0)
+    # return buffer 
 
 def parser_variable_labels(encodec:list) -> dict:
     temp = {}
@@ -91,8 +116,8 @@ def open_tempfile() -> str:
 
 def sanitize_name(name: str) -> str:
     name = name.replace(" ", "_")
-    name = re.sub(r"[^a-zA-Z0-9_@#$]", "_", name)
-    if name and name[0].isdigit():
-        name = "_" + name
-    return name[:64]
-
+    name = re.sub(r"[^a-zA-Z0-9_]", "_", name)
+    name = re.sub(r"_+", "_", name)
+    if not name or not name[0].isalpha():
+        name = "V" + name
+    return name[:60]
