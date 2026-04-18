@@ -14,11 +14,13 @@ class Parser:
         self.mapping_data = []
 
     def iterate(self):
+        """Iteruje kolumny DataFrame i grupuje pytania w mapping_data."""
         for question in self.iterator.iterate():
             self._grouped_data.append(question)
         self._create_mapping()
-            
+
     def _create_mapping(self):
+        """Serializuje kafeterię do list słowników (cafeteria_dump)."""
         self.mapping_data = self._grouped_data
         for question in self.mapping_data:
             if question.cafeteria == None:
@@ -26,5 +28,6 @@ class Parser:
             question.cafeteria_dump = [dict(c) for c in question.cafeteria]
 
     def save_model_to_json(self):
+        """Zapisuje mapping_data do questions.json."""
         self.serializer.serialize(self.mapping_data)
             

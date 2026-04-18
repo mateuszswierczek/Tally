@@ -3,17 +3,21 @@ from .schema import Question
 from .serializer import Serializer
 
 class Mapper:
+    """Nakłada schemat kodowania kafeterii na DataFrame bazy danych."""
+
     def __init__(self, data_path:str):
         self.df = self.load(data_path)
         self.serializer = Serializer()
 
     def load(self, data_path:str) -> pd.DataFrame:
+        """Wczytuje CSV z podanej ścieżki."""
         try:
             return pd.read_csv(data_path)
         except Exception:
             raise ValueError()
 
     def map_coding_onto_database(self, mapping:list[Question], df:pd.DataFrame) -> pd.DataFrame:
+        """Zamienia wartości tekstowe kafeterii na indeksy numeryczne."""
         df_copy = df.copy()
 
         for question in mapping:
@@ -27,8 +31,8 @@ class Mapper:
             df_copy[question.question] = df_copy[question.question].map({c["value"]: c["index"] for c in question.cafeteria_dump})
         return df_copy
     
-    #TODO: Refaktoryzacja
     def create_book_of_codes(self, mapping:list[Question]) -> pd.DataFrame:
+        """Tworzy DataFrame z zestawieniem kodów (wartość → indeks) dla każdego pytania."""
         df_of_codes = pd.DataFrame()
         for question in mapping:
             if question.cafeteria_dump is None:

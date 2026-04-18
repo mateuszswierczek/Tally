@@ -5,12 +5,17 @@ from .detector import Detector
 from typing import Generator
 
 class QuestionIterator:
+    """Iteruje kolumny DataFrame, grupuje podpytania i buduje obiekty Question z kafeterią."""
+
+    COLS_TO_DROP = ["ID odpowiedzi", "Data zakończenia", "Ostatnia strona", "Język początkowy", "pid", "Inne"]
+
     def __init__(self, df:pd.DataFrame) -> None:
         self.df:pd.DataFrame = df
         self.detector = Detector()
         self._grouped:dict[str, list[str]] = self._create_iteration_object()
 
     def _create_iteration_object(self) -> dict:
+        """Buduje mapę pytanie_główne → [kolumny podpytań]."""
         grouped:dict[str, list[str]]= {}
         for col in self.df.columns:
             if match := self.detector.get_base_question(col):
@@ -18,6 +23,7 @@ class QuestionIterator:
         return grouped
 
     def iterate(self) -> Generator[Question]:
+        """Yield Question dla każdej kolumny; łączy podpytania w jedno pytanie matrycowe."""
         temp_subquestions: list[Question] = []
         index_number = 1
         
@@ -25,8 +31,10 @@ class QuestionIterator:
             unique_size: int = self.df[col].dropna().unique().shape[0]
             total_count: int = self.df[col].dropna().shape[0]
             column_type = self.detector.detect_column_type(unique_size, self.df[col].dtype)
-
             is_grouped = any(col in cols for cols in self._grouped.values())
+
+            if any(col_to_drop in col for col_to_drop in self.COLS_TO_DROP):
+                continue
 
             if is_grouped:
                 if temp_subquestions:
@@ -35,7 +43,6 @@ class QuestionIterator:
                         yield self._iterate_subquestion(temp_subquestions)
                         temp_subquestions = []
                         index_number += 1
-                
                 temp_subquestions.append(self._make_question(col, index_number, column_type, unique_size, total_count))
                 
             else:
@@ -51,6 +58,7 @@ class QuestionIterator:
             yield self._iterate_subquestion(temp_subquestions)
 
     def _make_question(self, col, index_number, column_type, unique_size, total_count) -> Question:
+        """Tworzy obiekt Question dla pojedynczej kolumny."""
         question = Question(
                 question=col,
                 index=index_number,
@@ -64,7 +72,9 @@ class QuestionIterator:
                 subquestions = None
                 )
         return question
+
     def _iterate_cafeteria(self, column:pd.Series, total_count:int) -> list:
+        """Buduje kafeterię (listę Cafeteria) z unikalnych wartości kolumny."""
         temp = []
         counts = column.value_counts().T
         for ind, unique in enumerate(column.unique(), start=1):
@@ -81,6 +91,7 @@ class QuestionIterator:
         return temp
 
     def _iterate_subquestion(self, temp_subquestions) -> Question:
+        """Scala listę podpytań w jedno pytanie główne ze wspólną kafeterią."""
         first_question = temp_subquestions[0]
         cafeteria_dict = pd.Series(self._iterate_subquestions_cafeteria(temp_subquestions))
         main_question_cafeteria = self._iterate_cafeteria(cafeteria_dict, first_question.total_count)
@@ -97,6 +108,7 @@ class QuestionIterator:
         return question
 
     def _iterate_subquestions_cafeteria(self, subquestion:list[Question]) -> dict:
+        """Zbiera unikalne wartości kafeterii ze wszystkich podpytań i mapuje je na indeksy."""
         cafe_values = []
         for q in subquestion:
             cafe = q.cafeteria
