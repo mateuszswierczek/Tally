@@ -12,6 +12,7 @@ import re
 STARTCOL:int = 1
 STARTCOL_PERCENTAGE:int = 8
 BUFFER:int = 2
+CROSSTABLE_BUFFER:int = 2
 
 def write_to_excel(decoded:pd.DataFrame, encodec:pd.DataFrame, mapping:list[Question], book_of_codes:pd.DataFrame, crosstables:list[str]) -> io.BytesIO:
     """Tworzy archiwum ZIP z plikiem .xlsx i .sav (SPSS)."""
@@ -21,8 +22,8 @@ def write_to_excel(decoded:pd.DataFrame, encodec:pd.DataFrame, mapping:list[Ques
     with zipfile.ZipFile(buffer, "w") as zf:
         excel_buffer = io.BytesIO()
         with pd.ExcelWriter(path=excel_buffer, engine="openpyxl") as writer:
-            decoded.to_excel(writer, sheet_name="Baza rozkodowana", index=False)
-            encodec.to_excel(writer, sheet_name="Baza zakodowana", index=False)
+            decoded.to_excel(writer, sheet_name="Baza rozkodowana", index=False, na_rep="999")
+            encodec.to_excel(writer, sheet_name="Baza zakodowana", index=False, na_rep="999")
             book_of_codes.to_excel(writer, sheet_name="Księga kodów", index=False)
             frequencies_tables = generate_frequencies_table(mapping)
             for frequencies_table in frequencies_tables:
@@ -38,11 +39,20 @@ def write_to_excel(decoded:pd.DataFrame, encodec:pd.DataFrame, mapping:list[Ques
                                             sheet_name="Częstości", 
                                             index=False) 
                 startrow += frequencies_table[0].shape[0] + BUFFER 
-            if crosstables: 
-                crosstables_gen = generate_crosstable(mapping, crosstables) 
+            if crosstables:
+                startrow = 1
+                ws = writer.book.create_sheet("Krzyżówki")
+                crosstables_gen = generate_crosstable(mapping, crosstables)
                 for crosstable in crosstables_gen:
-                    #print(crosstable)
-                    pass
+                    startrow = write_crosstable(ws, crosstable, startrow, STARTCOL)
+                # startrow = 0
+                # crosstables_gen = generate_crosstable(mapping, crosstables) 
+                # for crosstable in crosstables_gen:
+                #     crosstable.to_excel(writer, 
+                #                            startcol=STARTCOL,
+                #                            startrow=startrow,
+                #                            sheet_name="Krzyżówki")
+                #     startrow += crosstable.shape[0] + BUFFER + CROSSTABLE_BUFFER
                 
         spss_file = write_to_spss(decoded, mapping)
         zf.writestr("Baza danych.xlsx", excel_buffer.getvalue())
@@ -115,3 +125,40 @@ def sanitize_name(name: str) -> str:
     if not name or not name[0].isalpha():
         name = "V" + name
     return name[:60]
+
+
+def write_crosstable(ws, crosstable: pd.DataFrame, startrow: int, startcol: int) -> int:
+    data_col = startcol + 1
+    prev_top = None
+    merge_start = None
+    for i, (top, bot) in enumerate(crosstable.columns):
+        col_idx = data_col + i
+        if top != prev_top:
+            if merge_start is not None:
+                if col_idx - 1 > merge_start:
+                    ws.merge_cells(
+                        start_row=startrow, start_column=merge_start,
+                        end_row=startrow, end_column=col_idx - 1
+                    )
+            ws.cell(row=startrow, column=col_idx, value=top)
+            merge_start = col_idx
+            prev_top = top
+        ws.cell(row=startrow + 1, column=col_idx, value=bot)
+
+    last_col = data_col + len(crosstable.columns) - 1
+    if merge_start is not None and last_col > merge_start:
+        ws.merge_cells(
+            start_row=startrow, start_column=merge_start,
+            end_row=startrow, end_column=last_col
+        )
+
+    for row_i, (idx, row) in enumerate(crosstable.iterrows()):
+        if isinstance(idx, tuple):
+            ws.cell(row=startrow + 2 + row_i, column=startcol, value=str(idx[0]))
+            ws.cell(row=startrow + 2 + row_i, column=data_col, value=str(idx[1]))
+        else:
+            ws.cell(row=startrow + 2 + row_i, column=startcol, value=str(idx))
+        for col_i, val in enumerate(row):
+            ws.cell(row=startrow + 2 + row_i, column=data_col + col_i, value=val)
+
+    return startrow + 2 + len(crosstable) + BUFFER + CROSSTABLE_BUFFER

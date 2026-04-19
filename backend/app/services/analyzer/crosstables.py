@@ -48,7 +48,7 @@ def _create_crosstab(
         interleaved_rows = []
         for idx in ct.index:
             interleaved_rows.append(ct.loc[idx].rename((idx, "n")))
-            interleaved_rows.append(pct.loc[idx].rename((idx, "%")))
+            interleaved_rows.append(pct.loc[idx].rename((idx, "% z kolumny")))
 
         section = pd.DataFrame(interleaved_rows)
         section.index = pd.MultiIndex.from_tuples(section.index)
@@ -91,7 +91,7 @@ def _create_maq_crosstab(
 
         labels = [subq.question for subq in subquestions if subq.question is not None]
         row_index = pd.MultiIndex.from_tuples(
-            [(label, t) for label in labels for t in ("n", "%")]
+            [(label, t) for label in labels for t in ("n", "% z kolumny")]
         )
         section = pd.DataFrame(col_data, index=row_index)
         section.columns = pd.MultiIndex.from_product([[cross_col], cross_vals])
