@@ -32,6 +32,7 @@ class QuestionIterator:
             total_count: int = self.df[col].dropna().shape[0]
             column_type = self.detector.detect_column_type(unique_size, self.df[col].dtype)
             is_grouped = any(col in cols for cols in self._grouped.values())
+            print(column_type)
 
             if any(col_to_drop in col for col_to_drop in self.COLS_TO_DROP):
                 continue
@@ -99,12 +100,13 @@ class QuestionIterator:
             question=self.detector.get_base_question(str(first_question.question)),
             index=first_question.index,
             type=first_question.type,
-            unique_count=first_question.unique_count,
+            unique_count=len(main_question_cafeteria),
             missing_count=first_question.missing_count,
             total_count=first_question.total_count,
             cafeteria=main_question_cafeteria,
             subquestions = [q for q in temp_subquestions],
         )
+        print(question)
         return question
 
     def _iterate_subquestions_cafeteria(self, subquestion:list[Question]) -> dict:

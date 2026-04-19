@@ -69,5 +69,5 @@ def _create_matrix_percentage(subquestions:list[Question], df:pd.DataFrame, col:
     result = _create_value_counts_table(matrix_df.melt(), col)
     pivoted = result.pivot(columns="value", index="variable").fillna(0)
     pivoted.columns = pivoted.columns.droplevel(0)
-    pivoted = pivoted.iloc[:, subquestions[0].unique_count:].reset_index()
+    pivoted = pivoted.iloc[:, col.unique_count:].reset_index()
     return pivoted

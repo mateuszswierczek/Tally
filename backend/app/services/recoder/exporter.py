@@ -1,4 +1,5 @@
 from app.services.analyzer.frequencies import generate_frequencies_table
+from app.services.analyzer.crosstables import generate_crosstable
 from app.services.recoder.schema import Question
 import pandas as pd
 import zipfile
@@ -12,7 +13,7 @@ STARTCOL:int = 1
 STARTCOL_PERCENTAGE:int = 8
 BUFFER:int = 2
 
-def write_to_excel(decoded:pd.DataFrame, encodec:pd.DataFrame, mapping:list[Question], book_of_codes:pd.DataFrame) -> io.BytesIO:
+def write_to_excel(decoded:pd.DataFrame, encodec:pd.DataFrame, mapping:list[Question], book_of_codes:pd.DataFrame, crosstables:list[str]) -> io.BytesIO:
     """Tworzy archiwum ZIP z plikiem .xlsx i .sav (SPSS)."""
     buffer = io.BytesIO()
     startrow = 0
@@ -36,8 +37,13 @@ def write_to_excel(decoded:pd.DataFrame, encodec:pd.DataFrame, mapping:list[Ques
                                             startrow=startrow,
                                             sheet_name="Częstości", 
                                             index=False) 
-                startrow += frequencies_table[0].shape[0] + BUFFER  
-
+                startrow += frequencies_table[0].shape[0] + BUFFER 
+            if crosstables: 
+                crosstables_gen = generate_crosstable(mapping, crosstables) 
+                for crosstable in crosstables_gen:
+                    #print(crosstable)
+                    pass
+                
         spss_file = write_to_spss(decoded, mapping)
         zf.writestr("Baza danych.xlsx", excel_buffer.getvalue())
         zf.writestr("Baza danych.sav", spss_file.getvalue())
