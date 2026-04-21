@@ -13,6 +13,7 @@ import { Route as AuthRouteImport } from './routes/_auth'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ComponentsSubnavbarRouteImport } from './routes/components/Subnavbar'
 import { Route as AuthRecoderRouteImport } from './routes/_auth/recoder'
+import { Route as AuthQuestionnaireParserRouteImport } from './routes/_auth/questionnaireParser'
 import { Route as AuthProjectsRouteImport } from './routes/_auth/projects'
 import { Route as AuthDashboardRouteImport } from './routes/_auth/dashboard'
 import { Route as AuthCrosstablesRouteImport } from './routes/_auth/crosstables'
@@ -36,6 +37,11 @@ const AuthRecoderRoute = AuthRecoderRouteImport.update({
   path: '/recoder',
   getParentRoute: () => AuthRoute,
 } as any)
+const AuthQuestionnaireParserRoute = AuthQuestionnaireParserRouteImport.update({
+  id: '/questionnaireParser',
+  path: '/questionnaireParser',
+  getParentRoute: () => AuthRoute,
+} as any)
 const AuthProjectsRoute = AuthProjectsRouteImport.update({
   id: '/projects',
   path: '/projects',
@@ -57,6 +63,7 @@ export interface FileRoutesByFullPath {
   '/crosstables': typeof AuthCrosstablesRoute
   '/dashboard': typeof AuthDashboardRoute
   '/projects': typeof AuthProjectsRoute
+  '/questionnaireParser': typeof AuthQuestionnaireParserRoute
   '/recoder': typeof AuthRecoderRoute
   '/components/Subnavbar': typeof ComponentsSubnavbarRoute
 }
@@ -65,6 +72,7 @@ export interface FileRoutesByTo {
   '/crosstables': typeof AuthCrosstablesRoute
   '/dashboard': typeof AuthDashboardRoute
   '/projects': typeof AuthProjectsRoute
+  '/questionnaireParser': typeof AuthQuestionnaireParserRoute
   '/recoder': typeof AuthRecoderRoute
   '/components/Subnavbar': typeof ComponentsSubnavbarRoute
 }
@@ -75,6 +83,7 @@ export interface FileRoutesById {
   '/_auth/crosstables': typeof AuthCrosstablesRoute
   '/_auth/dashboard': typeof AuthDashboardRoute
   '/_auth/projects': typeof AuthProjectsRoute
+  '/_auth/questionnaireParser': typeof AuthQuestionnaireParserRoute
   '/_auth/recoder': typeof AuthRecoderRoute
   '/components/Subnavbar': typeof ComponentsSubnavbarRoute
 }
@@ -85,6 +94,7 @@ export interface FileRouteTypes {
     | '/crosstables'
     | '/dashboard'
     | '/projects'
+    | '/questionnaireParser'
     | '/recoder'
     | '/components/Subnavbar'
   fileRoutesByTo: FileRoutesByTo
@@ -93,6 +103,7 @@ export interface FileRouteTypes {
     | '/crosstables'
     | '/dashboard'
     | '/projects'
+    | '/questionnaireParser'
     | '/recoder'
     | '/components/Subnavbar'
   id:
@@ -102,6 +113,7 @@ export interface FileRouteTypes {
     | '/_auth/crosstables'
     | '/_auth/dashboard'
     | '/_auth/projects'
+    | '/_auth/questionnaireParser'
     | '/_auth/recoder'
     | '/components/Subnavbar'
   fileRoutesById: FileRoutesById
@@ -142,6 +154,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthRecoderRouteImport
       parentRoute: typeof AuthRoute
     }
+    '/_auth/questionnaireParser': {
+      id: '/_auth/questionnaireParser'
+      path: '/questionnaireParser'
+      fullPath: '/questionnaireParser'
+      preLoaderRoute: typeof AuthQuestionnaireParserRouteImport
+      parentRoute: typeof AuthRoute
+    }
     '/_auth/projects': {
       id: '/_auth/projects'
       path: '/projects'
@@ -170,6 +189,7 @@ interface AuthRouteChildren {
   AuthCrosstablesRoute: typeof AuthCrosstablesRoute
   AuthDashboardRoute: typeof AuthDashboardRoute
   AuthProjectsRoute: typeof AuthProjectsRoute
+  AuthQuestionnaireParserRoute: typeof AuthQuestionnaireParserRoute
   AuthRecoderRoute: typeof AuthRecoderRoute
 }
 
@@ -177,6 +197,7 @@ const AuthRouteChildren: AuthRouteChildren = {
   AuthCrosstablesRoute: AuthCrosstablesRoute,
   AuthDashboardRoute: AuthDashboardRoute,
   AuthProjectsRoute: AuthProjectsRoute,
+  AuthQuestionnaireParserRoute: AuthQuestionnaireParserRoute,
   AuthRecoderRoute: AuthRecoderRoute,
 }
 

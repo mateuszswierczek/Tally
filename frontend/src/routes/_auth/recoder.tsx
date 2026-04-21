@@ -1,23 +1,14 @@
 
 import { createFileRoute } from '@tanstack/react-router'
 import { useState } from 'react'
-import { MappingSchema } from '../-schemas'
-import { z } from 'zod';
 import { DragDropProvider } from '@dnd-kit/react'
 import { useSortable, isSortableOperation } from '@dnd-kit/react/sortable'
 import { DragEndEvent } from '@dnd-kit/dom'
 import { useMapping } from '@/context/MappingContext'
 
-
-
 export const Route = createFileRoute('/_auth/recoder')({
   component: RouteComponent,
 })
-const Schema = MappingSchema;
-const MapperSchema = z.array(Schema);
-type Mapping = z.infer<typeof MapperSchema>;
-type Question = z.infer<typeof Schema>;
- 
  
 function SortableItem({ id, index }: { id: string; index: number }) {
     const { ref } = useSortable({ id, index });
@@ -33,7 +24,6 @@ function RouteComponent() {
     const [error, setError] = useState<string | null>(null);
     const [fuzzyQuestionMatching, setQuestionFuzzyMatching] = useState<string | null>(null)
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState<number | null>(null);
-    console.log("tutaj")
  
     const currentQuestionEdit = currentQuestionIndex !== null && mapping
         ? mapping[currentQuestionIndex]

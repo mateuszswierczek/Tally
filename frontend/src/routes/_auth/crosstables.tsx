@@ -1,6 +1,4 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { Sidebar } from '../components/Subnavbar'
-import { Navbar } from '../components/navbar'
 import { MappingSchema } from '../-schemas';
 import { z } from 'zod';
 import { useMapping } from '@/context/MappingContext';
@@ -8,8 +6,6 @@ import { useMapping } from '@/context/MappingContext';
 export const Route = createFileRoute('/_auth/crosstables')({
   component: Crosstable,
 })
-const Schema = MappingSchema;
-const MapperSchema = z.array(Schema);
 
 export function Crosstable() {
     const { mapping, setSelectedCrosstables, selectedCrosstables } = useMapping();

@@ -142,4 +142,6 @@ async def receive_mapping(payload:MappingPayload, _= Depends(get_current_user)):
 @app.post("/api/post_questionnaire")
 async def receive_questionnaire(file:UploadFile = File(...), _=Depends(get_current_user)):
     content = await file.read()
-    print(content)
+    survey_parser = QuestionnaireParser(BytesIO(content))
+    questionnaire_mapping = survey_parser.parser_questionnaire_instrument()
+    return {"mapping":questionnaire_mapping}

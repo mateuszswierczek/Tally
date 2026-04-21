@@ -8,11 +8,16 @@ import { useState } from 'react';
 export function Navbar() {
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const [isPopUp, setIsPopUp] = useState<boolean>(false);
+  const [isExclePopUp, setIsExclePopUp] = useState<boolean>(false);
   const navigate = useNavigate();
   const { setMapping } = useMapping();
 
-  function handleImportPopUp() {
+  function handleExcelImportPopUp() {
     setIsPopUp(!isPopUp);
+  }
+
+  function handleDocxImportPopUp(){
+    setIsExclePopUp(!isExclePopUp);
   }
 
   async function handleSubmitFile(e: React.FormEvent<HTMLFormElement>) {
@@ -45,7 +50,35 @@ export function Navbar() {
       navigate({ to: "/recoder" });
     }
   }
-  
+
+  async function handleSubmitFileDoxc(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const form = new FormData(e.currentTarget);
+    const file = form.get("file") as File;
+
+    if (!file) {
+      console.log("Brak pliku");
+      return;
+    }
+
+    const req = await fetch("http://127.0.0.1:8000/api/post_questionnaire", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${localStorage.getItem('token')}`
+      },
+      body: form
+    });
+
+    if (req.ok) {
+      const data_json = await req.json();
+      const docx_data = data_json["mapping"]
+      sessionStorage.setItem("excelData", JSON.stringify(docx_data));
+      setIsExclePopUp(false);
+      navigate({ to: "/questionnaireParser" });
+    }
+  }
+
+  //TODO: Wyrzucić to do klas, bo się syf robi
   return <div className='flex flex-row'>
     <nav className='w-full flex flex-row justify-around h-15 bg-[#181c24]'>
       <div className='w-40 h-30 px-2 py-2 mr-20'>
@@ -54,20 +87,33 @@ export function Navbar() {
       <div className='flex flex-row justify-around items-center h-full w-125 z-1'>
       {[
       {nav_label:"Dashboard", to:"/dashboard"}, 
+      {nav_label:"Kwestionariusz", to:"/questionnaireParser"},
       {nav_label:"Recoder", to:"/recoder"}].map((arr, i) => (
         <Link key={i} to={arr.to} className={`nav-option ${activeIndex === i ? "active" : ""} h-full w-30 flex justify-center`} onClick={() => {setActiveIndex(i)}}>
             <span className='text-[#8f96a8] h-full w-fit flex items-center select-none'>{arr.nav_label}</span>
-        </Link>
-      ))}
+        </Link>),
+      )}
       </div>
-      <Button className='w-40 self-center bg-[#E8821A]' type='button' onClick={handleImportPopUp}>Importuj plik</Button>
+      <Button className='w-40 self-center bg-[#E8821A]' type='button' onClick={handleDocxImportPopUp}>Importuj Docx</Button>
+      <Button className='w-40 self-center bg-[#E8821A]' type='button' onClick={handleExcelImportPopUp}>Importuj Excel</Button>
       {isPopUp &&
         <div className='file-input-popup z-1 w-100 h-25 absolute top-75 right-200 bg-amber-100 border-4 rounded-[16px]'>
           <form className='h-full flex flex-col justify-around items-center' onSubmit={(e) => {handleSubmitFile(e)}}>
             <input id="file" name="file" type='file' className='bg-[#a0adc6] w-5/6 px-4 border-none rounded-2xl' required></input>
             <div className='flex flex-row w-100 justify-evenly'>
               <Button type='submit'>Dalej</Button>
-              <Button type='submit' onClick={handleImportPopUp}>Wstecz</Button>
+              <Button type='submit' onClick={handleExcelImportPopUp}>Wstecz</Button>
+            </div>
+          </form>
+        </div>
+      }
+    {isExclePopUp &&
+        <div className='file-input-popup z-1 w-100 h-25 absolute top-75 right-200 bg-amber-100 border-4 rounded-[16px]'>
+          <form className='h-full flex flex-col justify-around items-center' onSubmit={(e) => {handleSubmitFileDoxc(e)}}>
+            <input id="file" name="file" type='file' className='bg-[#a0adc6] w-5/6 px-4 border-none rounded-2xl' required></input>
+            <div className='flex flex-row w-100 justify-evenly'>
+              <Button type='submit'>Dalej</Button>
+              <Button type='submit' onClick={handleDocxImportPopUp}>Wstecz</Button>
             </div>
           </form>
         </div>

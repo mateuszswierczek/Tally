@@ -3,8 +3,7 @@ from docx import Document
 from docx.text.paragraph import Paragraph
 from docx.table import Table
 from docx.oxml.ns import qn
-from schema import SurveyQuestion, SurveyTable, SurveyCafeteria
-
+from .schema import SurveyQuestion, SurveyTable, SurveyCafeteria
 
 #doc_path = "/Users/mateusz/Desktop/Projekty/Tally/backend/Test.docx"
 
@@ -82,6 +81,7 @@ class QuestionnaireParser:
                 continue
             self.questions_parsed.append(question)
         return self.questions_parsed
+
     @staticmethod
     def _is_numeric_list(paragraph, doc):
         try:
