@@ -6,13 +6,15 @@ class QuestionType(StrEnum):
     """Poziom zmiennej w sensie statystycznym."""
     single = "Pojedyńczy wybór"
     maq = "Wielokrotnego wyboru"
-    text = "Otwarte"
+    text = "Tekstowa"
     table = "Tabela"
+    numerical = "Numeryczna"
 
 class SurveyQuestion(BaseModel):
     text: str
     index: int
-    question_type: Literal["Pojedyńczy wybór", "Wielokrotnego wyboru", "Otwarte", "Tabela"]
+    #TODO: Zamienić na list iter
+    question_type: Literal["Pojedyńczy wybór", "Wielokrotnego wyboru", "Tekstowa", "Tabela", "Numeryczna"]
     cafeteria: list['SurveyCafeteria']
     is_showable: bool
 
@@ -20,5 +22,5 @@ class SurveyTable(SurveyQuestion):
     columns: list['SurveyCafeteria']
 
 class SurveyCafeteria(BaseModel):
-    item: str
+    item: str | int
     index: int

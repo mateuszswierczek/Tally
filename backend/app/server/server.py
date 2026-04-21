@@ -28,13 +28,12 @@ from app.services.recoder.recoder import Recoder
 from app.services.recoder.exporter import write_to_excel
 from app.services.recoder.mapper import Mapper
 from app.services.recoder.schema import Question, Mapping
+from app.services.surveyParser.parser import QuestionnaireParser
 from file_sanitizer import sanitize_excel_file
 from io import BytesIO
 
 import logging
 import jwt
-
-db = None
 
 ORIGINS = [
 "http://localhost:3001",
@@ -139,3 +138,8 @@ async def receive_mapping(payload:MappingPayload, _= Depends(get_current_user)):
                             200, 
                             media_type="application/zip",
                             headers={"Content-Disposition": "attachment; filename=Baza danych.zip"})
+
+@app.post("/api/post_questionnaire")
+async def receive_questionnaire(file:UploadFile = File(...), _=Depends(get_current_user)):
+    content = await file.read()
+    print(content)

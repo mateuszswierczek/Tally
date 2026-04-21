@@ -6,8 +6,9 @@ from docx.oxml.ns import qn
 from schema import SurveyQuestion, SurveyTable, SurveyCafeteria
 
 
-doc_path = "/Users/mateusz/Desktop/Projekty/Tally/backend/Test.docx"
+#doc_path = "/Users/mateusz/Desktop/Projekty/Tally/backend/Test.docx"
 
+#TODO: Pytania tekstowe, pytania numeryczne, pytania wielokrotnego wyboru
 class QuestionnaireParser:
     def __init__(self, doc) -> None:
         self.doc = Document(doc)
@@ -37,36 +38,50 @@ class QuestionnaireParser:
                 question_dict[last_seen_question].append({"Type":"Table"})
                 question_dict[last_seen_question].append([header_row, first_col])
         return question_dict
-    
+
+    #TODO: Zamienić q_type na StrEnum 
     def parser_questionnaire_instrument(self):
         for ind, (key, _) in enumerate(self.question_dict.items(), start=1):
             if self.question_dict[key][0]["Type"] == "Normal":
+                q_type = "Pojedyńczy wybór"
+                is_show = True
                 question_list = self.question_dict[key][1:]
+                cafeteria_list = [SurveyCafeteria(item=name, index=i) for i, name in enumerate(question_list, start=1)]
+
+                if len(cafeteria_list) > 8:
+                    try:
+                        int(cafeteria_list[0].item)
+                        q_type = "Numeryczna"
+                        is_show = False
+                    except (ValueError, TypeError):
+                        q_type = "Tekstowa"
+                        is_show = False
+
                 question = SurveyQuestion(
                     text=key,
                     index=ind,
-                    question_type= "Pojedyńczy wybór",
+                    question_type= q_type,
                     cafeteria=[SurveyCafeteria(item=str(name), index=i) for i, name in enumerate(question_list, start=1)],
-                    is_showable=True
+                    is_showable=is_show
                 )
             elif self.question_dict[key][0]["Type"] == "Table":
                 #TODO: Fajne te list okok
                 question_columns = self.question_dict[key][1:][0][0]
                 question_rows = self.question_dict[key][1:][0][1]
+                cafeteria_list = [SurveyCafeteria(item=name, index=i) for i, name in enumerate(question_rows, start=1)]
+                columns_litst = [SurveyCafeteria(item=name, index=i) for i, name in enumerate(question_columns, start=1)]
                 question = SurveyTable(
                     text=key,
                     index=ind,
                     question_type="Tabela",
-                    cafeteria=[SurveyCafeteria(item=str(name), index=i) for i, name in enumerate(question_rows, start=1)],
-                    columns=[SurveyCafeteria(item=str(name), index=i) for i, name in enumerate(question_columns, start=1)],
+                    cafeteria=cafeteria_list,
+                    columns=columns_litst,
                     is_showable=True
                 )
             else:
                 continue
-            print(question)
             self.questions_parsed.append(question)
-        pass
-
+        return self.questions_parsed
     @staticmethod
     def _is_numeric_list(paragraph, doc):
         try:
@@ -95,5 +110,5 @@ class QuestionnaireParser:
                                 return numFmt == 'decimal'
         return False
 
-parser = QuestionnaireParser(doc_path)
-parser.parser_questionnaire_instrument()
+#parser = QuestionnaireParser(doc_path)
+#parser.parser_questionnaire_instrument()
