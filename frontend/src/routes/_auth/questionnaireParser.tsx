@@ -8,7 +8,7 @@ export const Route = createFileRoute('/_auth/questionnaireParser')({
 
 function questionnaireParser() {
     const [mapping, setMapping] = useState()
-    const [currentQuestionIndex, SetCurrentQuestionIndex] = useState()
+    const [currentQuestionIndex, SetCurrentQuestionIndex] = useState<number>()
 
     
     const currentQuestionEdit = currentQuestionIndex !== null && mapping
@@ -39,7 +39,7 @@ function questionnaireParser() {
                     <div className='border-[0.5px]
                         border-[#E8821A] rounded-[5px] w-full bg-[#E8821A]
                         flex justify-end items-center pr-0.5 z-0'>
-                        <button key={i} className='text-white p-1.5 h-[95%] w-[95%] bg-[#181c24]' onClick={() => SetCurrentQuestionIndex(i)}>
+                        <button key={i} className='text-white p-1.5 h-[95%] w-[95%] bg-[#181c24]' onClick={() => SetCurrentQuestionIndex(Number(i))}>
                             <div className='flex flex-row w-full justify-between'>
                                 <p>{item.index}</p>
                                 <p className='overflow-clip'>{item.quesion_type}</p>
@@ -81,12 +81,30 @@ function questionnaireParser() {
                                         return updated;
                                     });
                                 }}>
-                                    <option value={"single"}>Pojedyńczy wybór</option>
-                                    <option value={"maq"}>Wielokrotnego wyboru</option>
-                                    <option value={"text"}>Tekstowa</option>
-                                    <option value={"table"}>Tabela</option>
-                                    <option value={"numerical"}>Numeryczna</option>
+                                    <option value={"Pojedyńczy wybór"}>Pojedyńczy wybór</option>
+                                    <option value={"Wielokrotnego wyboru"}>Wielokrotnego wyboru</option>
+                                    <option value={"Tekstowa"}>Tekstowa</option>
+                                    <option value={"Tabela"}>Tabela</option>
+                                    <option value={"Numeryczna"}>Numeryczna</option>
                                 </select>
+                            </div>
+                            <div className='flex flex-row'>
+                               <div className='w-[50%]'>
+                                    <p>Kafeteria</p>
+                                    {Object.entries(currentQuestionEdit.cafeteria ?? {}).map((cafe, ind) => (
+                                        <div className='mb-2' key={ind}>
+                                            <input className='bg-white text-black' type="text" value={cafe[1]["item"]}/>
+                                        </div>
+                                    ))}
+                                </div> 
+                                <div className='w-[50%]'>
+                                    <p>Subpytania</p>
+                                    {Object.entries(currentQuestionEdit.columns ?? {}).map((cafe, ind) => (
+                                        <div className='mb-2' key={ind}>
+                                            <input  className='bg-white text-black' type="text" value={cafe[1]["item"]}/>
+                                        </div>
+                                    ))}
+                                </div> 
                             </div>
                             {/*TODO: Dodać zmianę typu question_type na backendzie na key enum*/}
                             {/*TODO: Dodać input na typie pytań, iterowanie po kafeterii i subpytaniach, push na backend*/}
