@@ -7,7 +7,7 @@ export const Route = createFileRoute('/_auth/questionnaireParser')({
 })
 
 function questionnaireParser() {
-    const [mapping, SetMapping] = useState()
+    const [mapping, setMapping] = useState()
     const [currentQuestionIndex, SetCurrentQuestionIndex] = useState()
 
     
@@ -22,7 +22,7 @@ function questionnaireParser() {
             return
         }
             try {
-                SetMapping(JSON.parse(raw))
+                setMapping(JSON.parse(raw))
             }
             catch (e){
             }
@@ -53,8 +53,42 @@ function questionnaireParser() {
             {currentQuestionEdit &&
                 <div className='col-span-2 rounded-2xl border-2 ml-5 mt-1 w-full h-full overflow-hidden
                     p-2 bg-[#181c24] flex flex-col border-[#2D3748]'>
-                        <div>
-                            <input className='bg-white' type='text' value={currentQuestionEdit.text}></input>
+                        <div className='text-white'>
+                            <div className='flex flex-col'>
+                                <label htmlFor="question">Treść pytania: </label> 
+                                <input id={"question"} className="bg-white text-black w-[80%] h-[15%]" type="text" value={currentQuestionEdit.text} onChange={(e) => {
+                                    setMapping(prev => {
+                                        const updated = [...prev];
+                                        updated[currentQuestionIndex] = {
+                                            ...updated[currentQuestionIndex],
+                                            text: e.target.value,
+                                        };
+                                        return updated;
+                                    });
+                                }}
+                                /> 
+                            </div>
+                            <div>
+                                <label htmlFor="type">Typ pytania: </label> 
+                                <select id="type" value={currentQuestionEdit.question_type} onChange={(e) => {
+                                    console.log(mapping)
+                                    setMapping(prev => {
+                                        const updated = [...prev];
+                                        updated[currentQuestionIndex] = {
+                                            ...updated[currentQuestionIndex],
+                                            question_type: e.target.value,
+                                        };
+                                        return updated;
+                                    });
+                                }}>
+                                    <option value={"single"}>Pojedyńczy wybór</option>
+                                    <option value={"maq"}>Wielokrotnego wyboru</option>
+                                    <option value={"text"}>Tekstowa</option>
+                                    <option value={"table"}>Tabela</option>
+                                    <option value={"numerical"}>Numeryczna</option>
+                                </select>
+                            </div>
+                            {/*TODO: Dodać zmianę typu question_type na backendzie na key enum*/}
                             {/*TODO: Dodać input na typie pytań, iterowanie po kafeterii i subpytaniach, push na backend*/}
                         </div>
                 </div>
