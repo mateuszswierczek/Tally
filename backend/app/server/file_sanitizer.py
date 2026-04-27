@@ -29,7 +29,7 @@ async def sanitize_excel_file(file: UploadFile):
             detail="Nieprawidłowy format pliku."
         )
 
-    #TODO: Zastanowić się, czy to ma sens jak sprawdzamy bajty.
+    #TODO: Zastanowić się, czy to ma sens jak sprawdzamy bajty
     if file.content_type != "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet":
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,

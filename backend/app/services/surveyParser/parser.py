@@ -5,8 +5,6 @@ from docx.table import Table
 from docx.oxml.ns import qn
 from .schema import SurveyQuestion, SurveyTable, SurveyCafeteria
 
-#doc_path = "/Users/mateusz/Desktop/Projekty/Tally/backend/Test.docx"
-
 #TODO: Pytania tekstowe, pytania numeryczne, pytania wielokrotnego wyboru
 class QuestionnaireParser:
     def __init__(self, doc) -> None:
@@ -109,6 +107,3 @@ class QuestionnaireParser:
                                 numFmt = lvl.find(qn('w:numFmt')).get(qn('w:val'))
                                 return numFmt == 'decimal'
         return False
-
-#parser = QuestionnaireParser(doc_path)
-#parser.parser_questionnaire_instrument()

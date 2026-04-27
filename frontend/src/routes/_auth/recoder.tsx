@@ -5,6 +5,7 @@ import { DragDropProvider } from '@dnd-kit/react'
 import { useSortable, isSortableOperation } from '@dnd-kit/react/sortable'
 import { DragEndEvent } from '@dnd-kit/dom'
 import { useMapping } from '@/context/MappingContext'
+import { DownloadButton } from '../components/DownloadButton'
 
 export const Route = createFileRoute('/_auth/recoder')({
   component: RouteComponent,
@@ -69,6 +70,7 @@ function RouteComponent() {
     </div>;
 
     return (
+        <>
         <div className='bg-[#111318] flex flex-col w-full h-full overflow-hidden'>
             <div className='w-full flex-1 grid grid-cols-4 pt-4 ml-4 min-h-0'>
                 <div className='col-span-1 
@@ -184,5 +186,9 @@ function RouteComponent() {
                 </div>
             </div>
         </div>
+        <div className='h-16 shrink-0 mt-5 border-t border-[#2D3748] bg-[#181c24] flex items-center px-10'>
+                <DownloadButton />
+        </div>
+        </>
     );
 }

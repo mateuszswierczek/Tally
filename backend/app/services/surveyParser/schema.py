@@ -3,7 +3,6 @@ from enum import StrEnum
 from typing import Literal 
 
 class QuestionType(StrEnum):
-    """Poziom zmiennej w sensie statystycznym."""
     single = "Pojedyńczy wybór"
     maq = "Wielokrotnego wyboru"
     text = "Tekstowa"

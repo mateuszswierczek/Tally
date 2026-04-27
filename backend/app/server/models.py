@@ -1,5 +1,6 @@
 from pydantic import BaseModel, Field
 from app.services.recoder.schema import Question
+from app.services.surveyParser.schema import SurveyQuestion
 
 class Token(BaseModel):
     access_token:str
@@ -15,3 +16,6 @@ class User(BaseModel):
 class MappingPayload(BaseModel):
     mapping: list[Question]
     crosstables: list[str]
+
+class MappingDocxPayload(BaseModel):
+    mapping: list[SurveyQuestion]

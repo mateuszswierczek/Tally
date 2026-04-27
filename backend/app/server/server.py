@@ -20,14 +20,13 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from fastapi.responses import StreamingResponse
 from fastapi import FastAPI, Depends, HTTPException, status, UploadFile, File
-from models import User, Token, TokenData, MappingPayload
+from models import User, Token, TokenData, MappingPayload, MappingDocxPayload
 from jwt.exceptions import InvalidTokenError
 from datetime import datetime, timedelta, timezone
 from typing import Annotated
 from app.services.recoder.recoder import Recoder
 from app.services.recoder.exporter import write_to_excel
 from app.services.recoder.mapper import Mapper
-from app.services.recoder.schema import Question, Mapping
 from app.services.surveyParser.parser import QuestionnaireParser
 from file_sanitizer import sanitize_excel_file
 from io import BytesIO
@@ -145,3 +144,8 @@ async def receive_questionnaire(file:UploadFile = File(...), _=Depends(get_curre
     survey_parser = QuestionnaireParser(BytesIO(content))
     questionnaire_mapping = survey_parser.parser_questionnaire_instrument()
     return {"mapping":questionnaire_mapping}
+
+@app.post("/api/post_docx_mapping")
+async def receive_docx_mapping(payload:MappingDocxPayload, _= Depends(get_current_user)):
+    mapping = payload.mapping
+    print(mapping)

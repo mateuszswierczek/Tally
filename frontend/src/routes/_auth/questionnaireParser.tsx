@@ -1,6 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useState } from 'react'
 import { useEffect } from 'react'
+import { DownloadDocButton } from '../components/DownloadDocButton'
 
 export const Route = createFileRoute('/_auth/questionnaireParser')({
   component: questionnaireParser,
@@ -29,6 +30,7 @@ function questionnaireParser() {
     }, [])
 
    return (
+    <>
     <div className='bg-[#111318] flex flex-col w-full h-full overflow-hidden'>
         <div className='w-full flex-1 grid grid-cols-4 pt-4 ml-4 min-h-0'>
             <div className='col-span-1 
@@ -113,5 +115,7 @@ function questionnaireParser() {
             }
         </div>
     </div>
+    <DownloadDocButton mapping={mapping}/>
+    </>
 ); 
 }
