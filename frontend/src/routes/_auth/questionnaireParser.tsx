@@ -84,11 +84,11 @@ function questionnaireParser() {
                                         return updated;
                                     });
                                 }}>
-                                    <option value={"Pojedyńczy wybór"}>Pojedyńczy wybór</option>
-                                    <option value={"Wielokrotnego wyboru"}>Wielokrotnego wyboru</option>
-                                    <option value={"Tekstowa"}>Tekstowa</option>
-                                    <option value={"Tabela"}>Tabela</option>
-                                    <option value={"Numeryczna"}>Numeryczna</option>
+                                    <option value={"single"}>Pojedyńczy wybór</option>
+                                    <option value={"maq"}>Wielokrotnego wyboru</option>
+                                    <option value={"text"}>Tekstowa</option>
+                                    <option value={"tabel"}>Tabela</option>
+                                    <option value={"numerical"}>Numeryczna</option>
                                 </select>
                             </div>
                             <div className='flex flex-row'>

@@ -40,7 +40,7 @@ class QuestionnaireParser:
     def parser_questionnaire_instrument(self):
         for ind, (key, _) in enumerate(self.question_dict.items(), start=1):
             if self.question_dict[key][0]["Type"] == "Normal":
-                q_type = "Pojedyńczy wybór"
+                q_type = "single"
                 is_show = True
                 question_list = self.question_dict[key][1:]
                 cafeteria_list = [SurveyCafeteria(item=name, index=i) for i, name in enumerate(question_list, start=1)]
@@ -48,10 +48,10 @@ class QuestionnaireParser:
                 if len(cafeteria_list) > 8:
                     try:
                         int(cafeteria_list[0].item)
-                        q_type = "Numeryczna"
+                        q_type = "numerical"
                         is_show = False
                     except (ValueError, TypeError):
-                        q_type = "Tekstowa"
+                        q_type = "text"
                         is_show = False
 
                 question = SurveyQuestion(
@@ -70,7 +70,7 @@ class QuestionnaireParser:
                 question = SurveyTable(
                     text=key,
                     index=ind,
-                    question_type="Tabela",
+                    question_type="table",
                     cafeteria=cafeteria_list,
                     columns=columns_litst,
                     is_showable=True

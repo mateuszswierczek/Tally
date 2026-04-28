@@ -3,17 +3,17 @@ from enum import StrEnum
 from typing import Literal 
 
 class QuestionType(StrEnum):
-    single = "Pojedyńczy wybór"
-    maq = "Wielokrotnego wyboru"
-    text = "Tekstowa"
-    table = "Tabela"
-    numerical = "Numeryczna"
+    single = "single"
+    maq = "maq"
+    text = "text"
+    table = "table"
+    numerical = "numerical"
 
 class SurveyQuestion(BaseModel):
     text: str
     index: int
     #TODO: Zamienić na list iter
-    question_type: Literal["Pojedyńczy wybór", "Wielokrotnego wyboru", "Tekstowa", "Tabela", "Numeryczna"]
+    question_type: Literal["single", "maq", "text", "table", "numerical"]
     cafeteria: list['SurveyCafeteria']
     is_showable: bool
 
