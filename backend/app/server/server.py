@@ -28,6 +28,7 @@ from app.services.recoder.recoder import Recoder
 from app.services.recoder.exporter import write_to_excel
 from app.services.recoder.mapper import Mapper
 from app.services.surveyParser.parser import QuestionnaireParser
+from app.services.surveyParser.lime_parser import LimeParser
 from file_sanitizer import sanitize_excel_file
 from io import BytesIO
 
@@ -148,4 +149,6 @@ async def receive_questionnaire(file:UploadFile = File(...), _=Depends(get_curre
 @app.post("/api/post_docx_mapping")
 async def receive_docx_mapping(payload:MappingDocxPayload, _= Depends(get_current_user)):
     mapping = payload.mapping
+    lime_parser = LimeParser(mapping)
+    lime_parser.create_questionnaire()
     print(mapping)
