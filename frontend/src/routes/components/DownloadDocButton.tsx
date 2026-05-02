@@ -44,7 +44,7 @@ export const DownloadDocButton = (mapping) => {
 
     return (
         <div className='h-16 mt-5 shrink-0 border-t border-[#2D3748] bg-[#181c24] flex items-center px-10'>
-            <button onClick={handleDatabaseDownload} className="px-6 py-2 bg-[#E8821A] hover:bg-[#ff9d3a] text-white font-semibold rounded-lg transition-all duration-200 shadow-md active:scale-95">
+            <button onClick={handleDatabaseDownload} className="z-1 px-6 py-2 bg-[#E8821A] hover:bg-[#ff9d3a] text-white font-semibold rounded-lg transition-all duration-200 shadow-md active:scale-95">
                 Pobierz bazę (.xlsx)
             </button>
         </div>

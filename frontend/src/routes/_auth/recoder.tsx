@@ -72,7 +72,7 @@ function RouteComponent() {
     return (
         <>
         <div className='bg-[#111318] flex flex-col w-full h-full overflow-hidden'>
-            <div className='w-full flex-1 grid grid-cols-4 pt-4 ml-4 min-h-0'>
+            <div className='w-full z-2 flex-1 grid grid-cols-4 pt-4 ml-4 min-h-0'>
                 <div className='col-span-1 
                 rounded-2xl border-2 ml-1 mt-1 w-full h-full overflow-hidden
                 p-2 bg-[#181c24] flex flex-col border-[#2D3748]'>
@@ -97,6 +97,13 @@ function RouteComponent() {
                                                     </div>
                                                     <p className='overflow-hidden'>{item.question}</p>
                                                 </button>
+                                                <button onClick={(_) => {
+                                                    setMapping(prev => {
+                                                        const updated = [...prev!];
+                                                        updated.splice(i, 1);
+                                                        return updated
+                                                    })
+                                                }}>X</button>
                                             </div>
                                             {
                                                 isSubquestion &&
@@ -139,7 +146,6 @@ function RouteComponent() {
                                 </div>
                             </div>
                             <div className='grid grid-cols-6 h-fit bg-[#181c24] w-full border border-[#2D3748] rounded-lg'>
-                                {/* TODO:Zmiana na słownik */}
                                 <div className='contents font-bold'>
                                     <span className='bg-[#2D3748] h-15 flex items-center justify-center mb-5 rounded-tl-lg'>ID</span>
                                     <span className='bg-[#2D3748] h-15 flex items-center justify-center'>Kategoria</span>
@@ -186,7 +192,7 @@ function RouteComponent() {
                 </div>
             </div>
         </div>
-        <div className='h-16 shrink-0 mt-5 border-t border-[#2D3748] bg-[#181c24] flex items-center px-10'>
+        <div className='h-16 shrink-0 mt-5 border-t border-[#2D3748] bg-[#181c24] flex items-center px-10 z-2'>
                 <DownloadButton />
         </div>
         </>

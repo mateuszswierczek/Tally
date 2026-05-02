@@ -2,14 +2,18 @@ import { createFileRoute } from '@tanstack/react-router'
 import { useState } from 'react'
 import { useEffect } from 'react'
 import { DownloadDocButton } from '../components/DownloadDocButton'
+import { SurveyQuestion } from '../-schemas'
+import z from 'zod'
 
 export const Route = createFileRoute('/_auth/questionnaireParser')({
   component: questionnaireParser,
 })
 
 function questionnaireParser() {
-    const [mapping, setMapping] = useState()
-    const [currentQuestionIndex, SetCurrentQuestionIndex] = useState<number>()
+    const MapperSchema = z.array(SurveyQuestion);
+    type Mapping = z.infer<typeof MapperSchema>;
+    const [mapping, setMapping] = useState<Mapping>()
+    const [currentQuestionIndex, SetCurrentQuestionIndex] = useState<number | null>(null)
 
     
     const currentQuestionEdit = currentQuestionIndex !== null && mapping
@@ -34,7 +38,7 @@ function questionnaireParser() {
     <div className='bg-[#111318] flex flex-col w-full h-full overflow-hidden'>
         <div className='w-full flex-1 grid grid-cols-4 pt-4 ml-4 min-h-0'>
             {mapping &&
-                <div className='col-span-1 
+                <div className='col-span-1 z-2
                 rounded-2xl border-2 ml-1 mt-1 w-full h-full overflow-hidden
                 p-2 bg-[#181c24] flex flex-col border-[#2D3748]'>
                 {mapping && Object.entries(mapping).map(([i, item]) => (
@@ -45,25 +49,32 @@ function questionnaireParser() {
                             <button key={i} className='text-white p-1.5 h-[95%] w-[95%] bg-[#181c24]' onClick={() => SetCurrentQuestionIndex(Number(i))}>
                                 <div className='flex flex-row w-full justify-between'>
                                     <p>{item.index}</p>
-                                    <p className='overflow-clip'>{item.quesion_type}</p>
+                                    <p className='overflow-clip'>{item.question_type}</p>
                                 </div>
                                 <p className='overflow-hidden'>{item.text}</p>
                             </button>
+                            <button onClick={(e) => {
+                                setMapping(prev => {
+                                    const updated = [...prev!];
+                                    updated.splice(Number(i), 1);
+                                    return updated
+                                })
+                            }}>X</button>
                         </div>
                     </div>
                 ))}
                 </div>}
             {currentQuestionEdit &&
-                <div className='col-span-2 rounded-2xl border-2 ml-5 mt-1 w-full h-full overflow-hidden
+                <div className='col-span-2 rounded-2xl border-2 ml-5 mt-1 w-full h-full z-2 overflow-hidden
                     p-2 bg-[#181c24] flex flex-col border-[#2D3748]'>
                         <div className='text-white'>
                             <div className='flex flex-col'>
                                 <label htmlFor="question">Treść pytania: </label> 
                                 <input id={"question"} className="bg-white text-black w-[80%] h-[15%]" type="text" value={currentQuestionEdit.text} onChange={(e) => {
                                     setMapping(prev => {
-                                        const updated = [...prev];
-                                        updated[currentQuestionIndex] = {
-                                            ...updated[currentQuestionIndex],
+                                        const updated = [...prev!];
+                                        updated[currentQuestionIndex!] = {
+                                            ...updated[currentQuestionIndex!],
                                             text: e.target.value,
                                         };
                                         return updated;
@@ -76,9 +87,9 @@ function questionnaireParser() {
                                 <select id="type" value={currentQuestionEdit.question_type} onChange={(e) => {
                                     console.log(mapping)
                                     setMapping(prev => {
-                                        const updated = [...prev];
-                                        updated[currentQuestionIndex] = {
-                                            ...updated[currentQuestionIndex],
+                                        const updated = [...prev!];
+                                        updated[currentQuestionIndex!] = {
+                                            ...updated[currentQuestionIndex!],
                                             question_type: e.target.value,
                                         };
                                         return updated;
@@ -109,8 +120,6 @@ function questionnaireParser() {
                                     ))}
                                 </div> 
                             </div>
-                            {/*TODO: Dodać zmianę typu question_type na backendzie na key enum*/}
-                            {/*TODO: Dodać input na typie pytań, iterowanie po kafeterii i subpytaniach, push na backend*/}
                         </div>
                 </div>
             }

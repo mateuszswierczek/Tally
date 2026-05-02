@@ -1,4 +1,3 @@
-// 1. Zaimportuj hook
 import { useMapping } from '@/context/MappingContext'; 
 import { useNavigate } from '@tanstack/react-router';
 import { Link } from '@tanstack/react-router';
@@ -82,10 +81,7 @@ export function Navbar() {
   //TODO: Wyrzucić to do klas, bo się syf robi
   return <> 
     <div className='flex flex-row'>
-      <nav className='w-full flex flex-row justify-around h-15 bg-[#181c24]'>
-        <div className='w-40 h-30 px-2 py-2 mr-20'>
-          <img src="https://raw.githubusercontent.com/Openfield-survey/img-hosting/refs/heads/main/logo-op.png" alt='Logo'></img>
-        </div>
+      <nav className='navbar w-full flex flex-row justify-around h-15 bg-[#181c24]'>
         <div className='flex flex-row justify-around items-center h-full w-125 z-1'>
         {[
         {nav_label:"Dashboard", to:"/dashboard"}, 
@@ -96,10 +92,12 @@ export function Navbar() {
           </Link>),
         )}
         </div>
-        <Button className='w-40 self-center bg-[#E8821A]' type='button' onClick={handleDocxImportPopUp}>Importuj Docx</Button>
-        <Button className='w-40 self-center bg-[#E8821A]' type='button' onClick={handleExcelImportPopUp}>Importuj Excel</Button>
+        <div className='flex flex-row justify-around w-[20%]'>
+          <Button className='w-40 self-center bg-[#E8821A] z-1' type='button' onClick={handleDocxImportPopUp}>Importuj Docx</Button>
+          <Button className='w-40 self-center bg-[#E8821A] z-1' type='button' onClick={handleExcelImportPopUp}>Importuj Excel</Button>
+        </div>
         {isPopUp &&
-          <div className='file-input-popup z-1 w-100 h-25 absolute top-75 right-200 bg-amber-100 border-4 rounded-[16px]'>
+          <div className='file-input-popup z-3 w-100 h-25 absolute top-75 right-200 bg-amber-100 border-4 rounded-[16px]'>
             <form className='h-full flex flex-col justify-around items-center' onSubmit={(e) => {handleSubmitFile(e)}}>
               <input id="file" name="file" type='file' className='bg-[#a0adc6] w-5/6 px-4 border-none rounded-2xl' required></input>
               <div className='flex flex-row w-100 justify-evenly'>
@@ -109,8 +107,8 @@ export function Navbar() {
             </form>
           </div>
         }
-      {isExclePopUp &&
-          <div className='file-input-popup z-1 w-100 h-25 absolute top-75 right-200 bg-amber-100 border-4 rounded-[16px]'>
+        {isExclePopUp &&
+          <div className='file-input-popup z-3 w-100 h-25 absolute top-75 right-200 bg-amber-100 border-4 rounded-[16px]'>
             <form className='h-full flex flex-col justify-around items-center' onSubmit={(e) => {handleSubmitFileDoxc(e)}}>
               <input id="file" name="file" type='file' className='bg-[#a0adc6] w-5/6 px-4 border-none rounded-2xl' required></input>
               <div className='flex flex-row w-100 justify-evenly'>

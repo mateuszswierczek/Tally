@@ -16,9 +16,10 @@ class LimeParser:
         for index, question in enumerate(self.mapping):
             print(question)
             temp_q_data = {}
+
+            temp_q_data["id"] = f"138{index}"
             match question.question_type:
                 case "numerical":
-                    temp_q_data["id"] = f"138{index}"
                     temp_q_data["class"] = "Q"
                     temp_q_data["type/scale"] = "T"
                     temp_q_data["name"] = f"G01Q{index}"
@@ -30,7 +31,6 @@ class LimeParser:
                     temp_q_data["other"] = "N"
                     self.question_lime_format.append(temp_q_data)
                 case "single":
-                    temp_q_data["id"] = f"138{index}"
                     temp_q_data["class"] = "Q"
                     temp_q_data["type/scale"] = "L"
                     temp_q_data["name"] = f"G01Q{index}"
@@ -57,7 +57,6 @@ class LimeParser:
                 case "table":
                     pass
                 case "text":
-                    temp_q_data["id"] = f"138{index}"
                     temp_q_data["class"] = "Q"
                     temp_q_data["type/scale"] = "T"
                     temp_q_data["name"] = f"G01Q{index}"
@@ -69,7 +68,6 @@ class LimeParser:
                     temp_q_data["other"] = "N"
                     self.question_lime_format.append(temp_q_data)
                 case "maq":
-                    temp_q_data["id"] = f"138{index}"
                     temp_q_data["class"] = "Q"
                     temp_q_data["type/scale"] = "M"
                     temp_q_data["name"] = f"G01Q{index}"

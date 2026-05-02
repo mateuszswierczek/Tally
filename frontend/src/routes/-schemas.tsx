@@ -22,3 +22,12 @@ export const CafeteriaSchema = z.object({
   is_missing: z.boolean().nullable(),
   missing_code: z.string().nullable() ?? z.int32().nullable(),
 })
+
+export const SurveyQuestion = z.object({
+  text: z.string(),
+  index: z.int32(),
+  question_type: z.enum(["single", "maq", "text", "table", "numerical"]),
+  cafeteria: z.array(z.record(z.string(), z.any())).nullable(),
+  columns:  z.array(z.record(z.string(), z.any())).nullable(),
+  is_showable: z.boolean()
+})

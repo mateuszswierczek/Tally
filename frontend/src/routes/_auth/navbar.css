@@ -32,3 +32,33 @@
 }
 
 .file-input-popup {animation: fadeUp 0.4s ease both;}
+
+.navbar{
+  position: relative;
+}
+
+.navbar::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background-image:
+    linear-gradient(#2a3040 1px, transparent 1px),
+    linear-gradient(90deg,#2a3040 1px, transparent 1px);
+  background-size: 40px 40px;
+  opacity: 0.3;
+  pointer-events: none;
+}
+
+.main_body{
+  position: relative;
+}
+
+.main_body::after{
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background-image: repeating-linear-gradient( -45deg, transparent, transparent 40px, rgba(42,48,64,0.35) 40px, rgba(42,48,64,0.35) 41px );
+  pointer-events: none;
+}

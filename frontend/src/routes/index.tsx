@@ -1,7 +1,6 @@
 // TODO (security):
 // [ ] KRYTYCZNE: przenieść token z localStorage do httpOnly cookie (podatność na XSS)
 // [ ] zablokować przycisk submit podczas ładowania (zapobiec wielokrotnym requestom)
-// [X] dodać atrybut `required` na inputach login i password
 // [ ] dodać autocomplete="username" i autocomplete="current-password" na inputach
 // [ ] naprawić toggle widoczności hasła 
 
@@ -9,7 +8,6 @@ import { useState } from 'react'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Upload, SlidersHorizontal, BarChart2 } from 'lucide-react'
 import './login.css'
 
 export const Route = createFileRoute('/')({
@@ -43,9 +41,6 @@ function HomeComponent() {
   return (
   <div className='flex flex-row h-screen overflow-hidden'>
     <div className='left gap-2.5 relative font-["Fraunces"] px-10 py-12 border-r border-[#2a3040] overflow-hidden flex flex-col w-120 h-105 bg-[#181c24] min-h-screen'>
-      <div className='logo z-1 relative w-75 h-auto mb-24'>
-        <img src="https://raw.githubusercontent.com/Openfield-survey/img-hosting/refs/heads/main/logo-op.png" alt="Logo"/>
-      </div>
       <div className='login-heading z-1 relative flex-row mb-20'>
         <p className='text-4xl font-thin mb-2 text-white'>Witaj z <span className='italic text-[#E8821A]'>powrotem</span></p>
         <p className='text-[15px] text-[#525c72] font-["DM Sans"] relative'>Zaloguj się do platformy</p>
@@ -83,49 +78,8 @@ function HomeComponent() {
         <img src="https://i.ibb.co/bR6JZ3Kh/1773547344326-removebg-preview.png" className='w-full h-full object-contain scale-250'></img>
       </div>
       <div className='z-1 text-center'>
-        <p className='text-[28px] font-["Fraunces"] font-thin text-white mb-2'>Analiza danych <span className='italic text-[#E8821A]'>rynkowych</span></p>
+        <p className='text-[28px] font-["Fraunces"] font-thin text-white mb-2'>Analiza danych</p>
         <p className='text-[16px] font-["DM_Sans"] text-[#525c72] max-w-xs mx-auto'>Importuj, przetwarzaj i analizuj dane.</p>
-      </div>
-      <div className='z-1 flex flex-row gap-4 mt-8'>
-        <div className='flex flex-col gap-2 bg-[#181c24] border border-[#2a3040] rounded-[10px] px-4 py-3 w-36'>
-          <Upload size={14} className='text-[#E8821A]' />
-          <p className='text-[12px] font-["DM_Sans"] font-semibold text-[#eceef2]'>Import danych</p>
-          <p className='text-[11px] font-["DM_Sans"] text-[#525c72]'>CSV, Excel</p>
-        </div>
-        <div className='flex flex-col gap-2 bg-[#181c24] border border-[#2a3040] rounded-[10px] px-4 py-3 w-36'>
-          <SlidersHorizontal size={14} className='text-[#E8821A]' />
-          <p className='text-[12px] font-["DM_Sans"] font-semibold text-[#eceef2]'>Transformacje</p>
-          <p className='text-[11px] font-["DM_Sans"] text-[#525c72]'>Rekodowanie, filtrowanie</p>
-        </div>
-        <div className='flex flex-col gap-2 bg-[#181c24] border border-[#2a3040] rounded-[10px] px-4 py-3 w-36'>
-          <BarChart2 size={14} className='text-[#E8821A]' />
-          <p className='text-[12px] font-["DM_Sans"] font-semibold text-[#eceef2]'>Analizy</p>
-          <p className='text-[11px] font-["DM_Sans"] text-[#525c72]'>Statystyki, wykresy</p>
-        </div>
-      </div>
-      <div className='z-1 mt-4 bg-[#181c24] border border-[#2a3040] rounded-[10px] px-6 py-4 w-md'>
-        <p className='text-[11px] font-["DM_Mono"] text-[#525c72] mb-3 uppercase tracking-widest'>Roadmapa</p>
-        <div className='flex flex-col'>
-          {[
-            { dot: 'bg-[#4ade80]', label: 'Import danych', desc: 'Obsługa CSV i Excel', status: 'Gotowe' },
-            { dot: 'bg-[#facc15]', label: 'Rekodowanie zmiennych', desc: 'Transformacje i czyszczenie danych', status: 'W trakcie' },
-            { dot: 'bg-[#f87171]', label: 'Analizy statystyczne', desc: 'Korelacje, rozkłady, testy istotności', status: 'Planowane' },
-          ].map(({ dot, label, desc, status }, i, arr) => (
-            <div key={label} className='flex flex-row gap-3'>
-              <div className='flex flex-col items-center'>
-                <span className={`shrink-0 w-2 h-2 rounded-full mt-1.5 ${dot}`}></span>
-                {i < arr.length - 1 && <span className='w-px flex-1 bg-[#2a3040] my-1'></span>}
-              </div>
-              <div className='flex flex-row items-start justify-between w-full pb-3'>
-                <div>
-                  <p className='text-[12px] font-["DM_Sans"] font-semibold text-[#eceef2]'>{label}</p>
-                  <p className='text-[11px] font-["DM_Sans"] text-[#525c72]'>{desc}</p>
-                </div>
-                <span className='text-[10px] font-["DM_Mono"] text-[#525c72] shrink-0 ml-4'>{status}</span>
-              </div>
-            </div>
-          ))}
-        </div>
       </div>
     </div>
   </div>
