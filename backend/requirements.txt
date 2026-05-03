@@ -21,7 +21,6 @@ httpx==0.28.1
 idna==3.11
 Jinja2==3.1.6
 jwcrypto==1.5.6
-jwt==1.4.0
 limits==5.8.0
 markdown-it-py==4.0.0
 MarkupSafe==3.0.3
