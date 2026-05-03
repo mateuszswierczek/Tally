@@ -19,7 +19,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from fastapi.responses import StreamingResponse
 from fastapi import FastAPI, Depends, HTTPException, status, UploadFile, File
-from models import User, Token, TokenData, MappingPayload, MappingDocxPayload
+from .models import User, Token, TokenData, MappingPayload, MappingDocxPayload
 from jwt.exceptions import InvalidTokenError
 from datetime import datetime, timedelta, timezone
 from typing import Annotated
