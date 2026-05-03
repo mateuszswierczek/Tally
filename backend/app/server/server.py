@@ -29,7 +29,7 @@ from app.services.recoder.exporter_merged import write_to_excel_merged
 from app.services.recoder.mapper import Mapper
 from app.services.surveyParser.parser import QuestionnaireParser
 from app.services.surveyParser.lime_parser import LimeParser
-from file_sanitizer import sanitize_excel_file
+from .file_sanitizer import sanitize_excel_file
 from io import BytesIO
 
 import dotenv
