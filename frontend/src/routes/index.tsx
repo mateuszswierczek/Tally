@@ -24,8 +24,9 @@ function HomeComponent() {
     const form_data =new URLSearchParams();
     form_data.append("username", form.get("login") as string);
     form_data.append("password", form.get("password") as string);
-
-    const res = await fetch("http://127.0.0.1:8000/api/auth_user", {
+    const link = "backend-production-6afc.up.railway.app"
+   //const link = "http://127.0.0.1:8000"
+    const res = await fetch(`${link}/api/auth_user`, {
       method:'POST',
       headers: {'Content-Type': 'application/x-www-form-urlencoded'},
       body:form_data.toString()})
