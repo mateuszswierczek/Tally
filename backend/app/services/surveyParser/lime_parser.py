@@ -14,7 +14,6 @@ class LimeParser:
     
     def create_questionnaire(self):
         for index, question in enumerate(self.mapping):
-            print(question)
             temp_q_data = {}
 
             temp_q_data["id"] = f"138{index}"

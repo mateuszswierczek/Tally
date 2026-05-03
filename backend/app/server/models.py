@@ -16,6 +16,7 @@ class User(BaseModel):
 class MappingPayload(BaseModel):
     mapping: list[Question]
     crosstables: list[str]
+    merged: bool
 
 class MappingDocxPayload(BaseModel):
     mapping: list[SurveyQuestion]

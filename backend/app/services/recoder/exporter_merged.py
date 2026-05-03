@@ -1,5 +1,5 @@
 from app.services.analyzer.frequencies import generate_frequencies_table
-from app.services.analyzer.crosstables import generate_crosstable
+from app.services.analyzer.crosstables_merged import generate_crosstable_merged
 from app.services.recoder.schema import Question
 import pandas as pd
 import zipfile
@@ -14,7 +14,7 @@ STARTCOL_PERCENTAGE:int = 8
 BUFFER:int = 2
 CROSSTABLE_BUFFER:int = 2
 
-def write_to_excel(decoded:pd.DataFrame, encodec:pd.DataFrame, mapping:list[Question], book_of_codes:pd.DataFrame, crosstables:list[str]) -> io.BytesIO:
+def write_to_excel_merged(decoded:pd.DataFrame, encodec:pd.DataFrame, mapping:list[Question], book_of_codes:pd.DataFrame, crosstables:list[str]) -> io.BytesIO:
     buffer = io.BytesIO()
     startrow = 0
 
@@ -39,17 +39,25 @@ def write_to_excel(decoded:pd.DataFrame, encodec:pd.DataFrame, mapping:list[Ques
                                             index=False) 
                 startrow += frequencies_table[0].shape[0] + BUFFER 
             if crosstables:
-                    startrow = 1
-                    ws = writer.book.create_sheet("Krzyżówki")
-                    crosstables_gen = generate_crosstable(mapping, crosstables)
-                    for crosstable in crosstables_gen:
-                        #TODO: Zaimplementować .to_excel, poprawić startcol i start row
-                        # crosstable.to_excel(writer, 
-                        #                     startcol=STARTCOL_PERCENTAGE,
-                        #                     startrow=startrow,
-                        #                     sheet_name="Krzyżówki") 
-                        startrow = write_crosstable(ws, crosstable, startrow, STARTCOL)
-                    
+                frequencies_tables = generate_frequencies_table(mapping)
+                crosstables_gen = generate_crosstable_merged(mapping, crosstables)
+                startrow = 1 
+                for frequencies_table in frequencies_tables:
+                    startcol = 1
+                    frequencies_table[0].drop(columns='% z N').to_excel(writer, 
+                                           startcol=STARTCOL,
+                                           startrow=startrow,
+                                           sheet_name="Krzyżówki", 
+                                           index=False)
+                    startcol = frequencies_table[0].shape[1]
+                    crosstable = next(crosstables_gen)
+                    crosstable.to_excel(writer,
+                                        startcol=startcol,
+                                        startrow=startrow,
+                                        sheet_name="Krzyżówki",
+                                        index=False)
+                    startcol += crosstable.shape[1]
+                    startrow += frequencies_table[0].shape[0] + BUFFER
         spss_file = write_to_spss(decoded, mapping)
         zf.writestr("Baza danych.xlsx", excel_buffer.getvalue())
         zf.writestr("Baza danych.sav", spss_file.getvalue())

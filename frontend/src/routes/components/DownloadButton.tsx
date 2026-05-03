@@ -66,11 +66,11 @@ export const DownloadButton = () => {
         >
             Pobierz bazę (.zip)
         </button>
-        {/* TODO: Poprawić ten popup */}
+        {/* TODO: Poprawić ten popup  */}
         {isPopUp &&
             <div className="text-white">
                 <label htmlFor="merged">Złączone tabele?</label>
-                <input id="merged" onChange={(_) => setIsMergedTables(!isMergedTables)}></input>
+                <input id="merged" type="checkbox" onChange={(_) => setIsMergedTables(!isMergedTables)}></input>
                 <button onClick={handleDatabaseDownload}>Dalej</button>
             </div>
         }

@@ -11,7 +11,6 @@
 # [ ] Po dodaniu hashowania: Przy sprawdzaniu usera, gdy usera nie ma w bazie, 
 # 'sprawdzić' hasło na DummyHash
 
-
 # TODO - PÓŹNIEJ:
 # [ ] Logowanie requestów
 # [ ] Testy jednostkowe dla authenticate_user i create_access_token
@@ -26,14 +25,18 @@ from datetime import datetime, timedelta, timezone
 from typing import Annotated
 from app.services.recoder.recoder import Recoder
 from app.services.recoder.exporter import write_to_excel
+from app.services.recoder.exporter_merged import write_to_excel_merged
 from app.services.recoder.mapper import Mapper
 from app.services.surveyParser.parser import QuestionnaireParser
 from app.services.surveyParser.lime_parser import LimeParser
 from file_sanitizer import sanitize_excel_file
 from io import BytesIO
 
-import logging
+import dotenv
 import jwt
+import os
+
+dotenv.load_dotenv()
 
 ORIGINS = [
 "http://localhost:3001",
@@ -43,8 +46,10 @@ ACCESS_TOKEN_EXPIRES:int = 300
 SECRET = "gasd23j5rthn2qtgfkadsjnjk324"
 ALGORITHM = "HS256"
 MAX_FILE_SIZE = 10 * 1024 * 1024 #10 MB
+ADMIN_USER = os.environ["USERNAME"]
+ADMIN_PASSWORD = os.environ["PASSWORD"]
 
-app = FastAPI()
+app = FastAPI(docs_url=None, redoc_url=None, openapi_url=None)
 
 app.add_middleware(
     CORSMiddleware,
@@ -61,16 +66,14 @@ def create_acces_token(data:dict, expires_time:timedelta = timedelta(minutes=30)
     return jwt.encode(payload, SECRET, algorithm=ALGORITHM)
 
 def get_user(username:str, db = None):
-    fake_db = ["admin"]
-    if username in fake_db:
+    if username == ADMIN_USER:
         return "admin"
 
 def authenticate_user(login, password, db=None):
     user = get_user(login)
     if not user:
         return False
-    fake_pass = "test123"
-    if password == fake_pass:
+    if password == ADMIN_PASSWORD:
         return True
     return False
 
@@ -126,14 +129,22 @@ async def receive_excel_file(file: UploadFile = File(...), _= Depends(get_curren
 async def receive_mapping(payload:MappingPayload, _= Depends(get_current_user)):
     mapping = payload.mapping
     crosstables = payload.crosstables
+    merged = payload.merged
     mapper = Mapper("/Users/mateusz/Desktop/Projekty/Tally/backend/app/server/data.csv")
     mapped_df = mapper.map_coding_onto_database(mapping, mapper.df)
     book_of_codes = mapper.create_book_of_codes(mapping)
-    ziped_files = write_to_excel(mapper.df, 
+    if merged:
+        ziped_files = write_to_excel_merged(mapper.df, 
                                  mapped_df, 
                                  mapping, 
                                  book_of_codes,
                                  crosstables)
+    else:
+        ziped_files = write_to_excel(mapper.df, 
+                                    mapped_df, 
+                                    mapping, 
+                                    book_of_codes,
+                                    crosstables)
     return StreamingResponse(ziped_files, 
                             200, 
                             media_type="application/zip",
@@ -151,4 +162,3 @@ async def receive_docx_mapping(payload:MappingDocxPayload, _= Depends(get_curren
     mapping = payload.mapping
     lime_parser = LimeParser(mapping)
     lime_parser.create_questionnaire()
-    print(mapping)
