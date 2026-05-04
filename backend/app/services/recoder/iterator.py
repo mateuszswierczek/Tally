@@ -15,7 +15,6 @@ class QuestionIterator:
         self._grouped:dict[str, list[str]] = self._create_iteration_object()
 
     def _create_iteration_object(self) -> dict:
-        """Buduje mapę pytanie_główne → [kolumny podpytań]."""
         grouped:dict[str, list[str]]= {}
         for col in self.df.columns:
             if match := self.detector.get_base_question(col):
@@ -23,7 +22,6 @@ class QuestionIterator:
         return grouped
 
     def iterate(self) -> Generator[Question]:
-        """Yield Question dla każdej kolumny; łączy podpytania w jedno pytanie matrycowe."""
         temp_subquestions: list[Question] = []
         index_number = 1
         
@@ -58,7 +56,6 @@ class QuestionIterator:
             yield self._iterate_subquestion(temp_subquestions)
 
     def _make_question(self, col, index_number, column_type, unique_size, total_count) -> Question:
-        """Tworzy obiekt Question dla pojedynczej kolumny."""
         question = Question(
                 question=col,
                 index=index_number,
@@ -74,7 +71,6 @@ class QuestionIterator:
         return question
 
     def _iterate_cafeteria(self, column:pd.Series, total_count:int) -> list:
-        """Buduje kafeterię (listę Cafeteria) z unikalnych wartości kolumny."""
         temp = []
         counts = column.value_counts().T
         for ind, unique in enumerate(column.unique(), start=1):

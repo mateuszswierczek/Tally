@@ -6,9 +6,12 @@ export const DownloadDocButton = (mapping) => {
             alert("Najpierw załaduj dane z pliku Word!");
             return;
         }
+        
 
         try {
-            const req = await fetch("http://127.0.0.1:8000/api/post_docx_mapping", {
+            const link_ = "backend-production-6afc.up.railway.app"
+            //const link = "http://127.0.0.1:8000"
+            const req = await fetch(`${link_}/api/post_docx_mapping`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

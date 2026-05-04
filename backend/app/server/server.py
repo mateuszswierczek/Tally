@@ -19,7 +19,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from fastapi.responses import StreamingResponse
 from fastapi import FastAPI, Depends, HTTPException, status, UploadFile, File
-from .models import User, Token, TokenData, MappingPayload, MappingDocxPayload
+from models import User, Token, TokenData, MappingPayload, MappingDocxPayload
 from jwt.exceptions import InvalidTokenError
 from datetime import datetime, timedelta, timezone
 from typing import Annotated
@@ -29,7 +29,7 @@ from app.services.recoder.exporter_merged import write_to_excel_merged
 from app.services.recoder.mapper import Mapper
 from app.services.surveyParser.parser import QuestionnaireParser
 from app.services.surveyParser.lime_parser import LimeParser
-from .file_sanitizer import sanitize_excel_file
+from file_sanitizer import sanitize_excel_file
 from io import BytesIO
 
 import dotenv
@@ -39,6 +39,7 @@ import os
 dotenv.load_dotenv()
 
 ORIGINS = [
+"https://backend-production-6afc.up.railway.app/",
 "http://localhost:3001",
 "https://localhost:3001"
 ]

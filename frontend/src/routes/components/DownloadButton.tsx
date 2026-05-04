@@ -1,11 +1,10 @@
 import { useMapping } from "@/context/MappingContext";
 import { useState } from "react";
-import { fa } from "zod/v4/locales";
 
 export const DownloadButton = () => {
     const { mapping, selectedCrosstables } = useMapping();
     const [ isPopUp, setIsPopUp ] = useState<boolean>(false);
-    const [ isMergedTables, setIsMergedTables ] = useState<boolean>(false);
+    const [ isMergedTables, setIsMergedTables ] = useState<boolean>(true);
 
     function handleIsPopUp() {
         setIsPopUp(!isPopUp)
@@ -70,7 +69,7 @@ export const DownloadButton = () => {
         {isPopUp &&
             <div className="text-white">
                 <label htmlFor="merged">Złączone tabele?</label>
-                <input id="merged" type="checkbox" onChange={(_) => setIsMergedTables(!isMergedTables)}></input>
+                <input id="merged" type="checkbox" onChange={() => setIsMergedTables(!isMergedTables)} checked/>
                 <button onClick={handleDatabaseDownload}>Dalej</button>
             </div>
         }

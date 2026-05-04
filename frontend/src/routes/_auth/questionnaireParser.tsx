@@ -14,7 +14,6 @@ function questionnaireParser() {
     type Mapping = z.infer<typeof MapperSchema>;
     const [mapping, setMapping] = useState<Mapping>()
     const [currentQuestionIndex, SetCurrentQuestionIndex] = useState<number | null>(null)
-
     
     const currentQuestionEdit = currentQuestionIndex !== null && mapping
         ? mapping[currentQuestionIndex]

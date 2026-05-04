@@ -7,8 +7,17 @@ def generate_frequencies_table(mapping:list[Question]) -> Generator[tuple[pd.Dat
     df = pd.read_csv("/Users/mateusz/Desktop/Projekty/Tally/backend/app/server/data.csv")
     for col in mapping:
         if col.cafeteria is None:
-            other_question = _create_value_counts_table(df[col.question], col) 
-            _add_columnt_tile(other_question, col)
+            # other_question = _create_value_counts_table(df[col.question], col) 
+            # _add_columnt_tile(other_question, col)
+            try:
+                other_question = _create_value_counts_table(
+                    pd.Categorical(df[col.question], 
+                    [unique for unique in df[col.question].unique()].sort(), ordered=True),col)
+                _add_columnt_tile(other_question, col)
+            except:
+                other_question = _create_value_counts_table(df[col.question], col) 
+                _add_columnt_tile(other_question, col)
+            
             yield other_question, other_question.drop(columns="Częstości")
         elif col.subquestions is not None:
             if col.is_maq:
