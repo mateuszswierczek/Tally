@@ -74,8 +74,8 @@ function RouteComponent() {
         <div className='bg-[#111318] flex flex-col w-full h-full overflow-hidden'>
             <div className='w-full z-2 flex-1 grid grid-cols-4 pt-4 ml-4 min-h-0'>
                 <div className='col-span-1 
-                rounded-2xl border-2 ml-1 mt-1 w-full h-full overflow-hidden
-                p-2 bg-[#181c24] flex flex-col border-[#2D3748]'>
+                rounded-2xl ml-1 w-full h-full overflow-hidden
+                p-2 bg-[#181c24] flex flex-col border border-[#2D3748]'>
                     <input type='text' placeholder=' Wyszukaj zmiennej...' className='w-[90%] bg-[#181c24] text-white border border-[#2D3748] rounded-lg mr-2 mt-4 mb-4 ml-4'
                         onChange={(e) => { setQuestionFuzzyMatching(e.currentTarget.value) }}></input>
                     <div className='flex-1 min-h-0 w-full overflow-y-auto'>

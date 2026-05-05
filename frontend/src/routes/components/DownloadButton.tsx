@@ -4,7 +4,7 @@ import { useState } from "react";
 export const DownloadButton = () => {
     const { mapping, selectedCrosstables } = useMapping();
     const [ isPopUp, setIsPopUp ] = useState<boolean>(false);
-    const [ isMergedTables, setIsMergedTables ] = useState<boolean>(true);
+    const [ isMergedTables, setIsMergedTables ] = useState<boolean>(false);
 
     function handleIsPopUp() {
         setIsPopUp(!isPopUp)
@@ -65,12 +65,19 @@ export const DownloadButton = () => {
         >
             Pobierz bazę (.zip)
         </button>
-        {/* TODO: Poprawić ten popup  */}
         {isPopUp &&
-            <div className="text-white">
-                <label htmlFor="merged">Złączone tabele?</label>
-                <input id="merged" type="checkbox" onChange={() => setIsMergedTables(!isMergedTables)} checked/>
-                <button onClick={handleDatabaseDownload}>Dalej</button>
+            <div className="text-white absolute bg-[#181c24] border-2 border-[#2D3748] w-75 h-75 bottom-[50%] left-[40%] flex flex-col justify-between">
+                <div>
+                    <h1 className="text-center text-xl mb-2">Opcje:</h1>
+                    <div className="flex justify-around">
+                        <label htmlFor="merged">Złączone tabele?</label>
+                        <input id="merged" type="checkbox" onChange={() => setIsMergedTables(!isMergedTables)} checked={isMergedTables}/>
+                    </div>
+                </div>
+                <div className="flex flex-row justify-around">
+                    <button className="w-[40%] h mb-2 self-center bg-[#E8821A] hover:bg-[#ff9d3a] text-white font-semibold rounded-lg transition-all duration-200 shadow-md active:scale-95 z-2" onClick={handleDatabaseDownload}>Dalej</button>
+                    <button className="w-[40%] h mb-2 self-center bg-[#111318] hover:bg-[#2f333e] text-white font-semibold rounded-lg transition-all duration-200 shadow-md active:scale-95 z-2" onClick={() => setIsPopUp(!isPopUp)}>Wstecz</button>
+                </div>
             </div>
         }
     </div>

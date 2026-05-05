@@ -80,7 +80,6 @@ function HomeComponent() {
       </div>
       <div className='z-1 text-center'>
         <p className='text-[28px] font-["Fraunces"] font-thin text-white mb-2'>Analiza danych</p>
-        <p className='text-[16px] font-["DM_Sans"] text-[#525c72] max-w-xs mx-auto'>Importuj, przetwarzaj i analizuj dane.</p>
       </div>
     </div>
   </div>

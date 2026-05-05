@@ -85,15 +85,15 @@ export function Navbar() {
         )}
         </div>
         <div className='flex flex-row justify-around w-[20%]'>
-          <Button className='w-40 self-center bg-[#E8821A] z-1' type='button' onClick={() => setIsPopUp(!isPopUp)}>Importuj plik</Button>
+          <Button className='px-6 py-2 self-center bg-[#E8821A] hover:bg-[#ff9d3a] text-white font-semibold rounded-lg transition-all duration-200 shadow-md active:scale-95 z-2' type='button' onClick={() => setIsPopUp(!isPopUp)}>Importuj plik</Button>
         </div>
         {isPopUp &&
-          <div className='file-input-popup z-3 w-100 h-25 absolute top-75 right-200 bg-[#181c24] border-[#E8821A] border-4 rounded-[16px]'>
+          <div className='file-input-popup z-2 w-125 h-50 absolute top-[450%] right-[40%] bg-[#181c24] border-[#E8821A] border-2 rounded-[16px]'>
             <form className='h-full flex flex-col justify-around items-center' onSubmit={(e) => {handleSubmitFile(e)}}>
               <input id="file" name="file" type='file' className='bg-white w-5/6 px-4 border-none rounded-2xl' required></input>
               <div className='flex flex-row w-100 justify-evenly'>
-                <Button className='bg-[#E8821A]' type='submit'>Dalej</Button>
-                <Button className='bg-[#E8821A]' type='submit' onClick={() => setIsPopUp(!isPopUp)}>Wstecz</Button>
+                <Button className='w-[30%] h mb-2 self-center bg-[#E8821A] hover:bg-[#ff9d3a] text-white font-semibold rounded-lg transition-all duration-200 shadow-md active:scale-95 z-2' type='submit'>Dalej</Button>
+                <Button className='w-[30%] h mb-2 self-center bg-[#111318] hover:bg-[#2f333e] text-white font-semibold rounded-lg transition-all duration-200 shadow-md active:scale-95 z-2' type='submit' onClick={() => setIsPopUp(!isPopUp)}>Wstecz</Button>
               </div>
             </form>
           </div>
