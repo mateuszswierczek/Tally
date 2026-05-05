@@ -8,29 +8,49 @@ import { useState } from 'react';
 export function Navbar() {
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const [isPopUp, setIsPopUp] = useState<boolean>(false);
-  const [isExclePopUp, setIsExclePopUp] = useState<boolean>(false);
   const navigate = useNavigate();
   const { setMapping } = useMapping();
+  const isExcel = check([0x50, 0x4B, 0x03, 0x04, 0x14, 0x00, 0x06, 0x00])
+  const isWord = check([0x50, 0x4B, 0x03, 0x04, 0x14, 0x00, 0x08, 0x08])
 
-  function handleExcelImportPopUp() {
-    setIsPopUp(!isPopUp);
+  function readBuffer(file:File, start=0, end=8) : Promise<ArrayBuffer>{
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () =>{
+        resolve(reader.result as ArrayBuffer)
+      };
+      reader.onerror = reject;
+      reader.readAsArrayBuffer(file.slice(start,end))
+    })
   }
 
-  function handleDocxImportPopUp(){
-    setIsExclePopUp(!isExclePopUp);
-  }
+  function check(headers:number[]) {
+  return (buffers:Uint8Array, options = { offset: 0 }) =>
+    headers.every(
+      (header, index) => header === buffers[options.offset + index]
+    );
+}
 
   async function handleSubmitFile(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const form = new FormData(e.currentTarget);
     const file = form.get("file") as File;
+    const buffer: ArrayBuffer = await readBuffer(file, 0, 8)
+    const u_int = new Uint8Array(buffer)
 
     if (!file) {
       console.log("Brak pliku");
       return;
     }
 
-    const req = await fetch("http://127.0.0.1:8000/api/post_excel", {
+    const fetch_addres = isExcel(u_int) 
+      ? "http://127.0.0.1:8000/api/post_excel" 
+      : isWord(u_int) ? "http://127.0.0.1:8000/api/post_questionnaire" 
+      : (() => {
+        alert("Błędne rozszerzenie pliku.")
+        throw new Error("Błędny plik.")})();
+
+    const req = await fetch(fetch_addres, {
       method: "POST",
       headers: {
         "Authorization": `Bearer ${localStorage.getItem('token')}`
@@ -40,45 +60,16 @@ export function Navbar() {
 
     if (req.ok) {
       const data_json = await req.json();
-      const excel_data = data_json["mapping"];
+      const mapping_data = data_json["mapping"];
 
-      setMapping(excel_data); 
-      
-      sessionStorage.setItem("excelData", JSON.stringify(excel_data));
+      isExcel(u_int) ? setMapping(mapping_data) : sessionStorage.setItem("wordData", JSON.stringify(mapping_data));; 
+      const navigate_addres = isExcel(u_int) ? "/recoder" : "/questionnaireParser"
       
       setIsPopUp(false);
-      navigate({ to: "/recoder" });
+      navigate({ to: navigate_addres });
     }
   }
 
-  async function handleSubmitFileDoxc(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    const form = new FormData(e.currentTarget);
-    const file = form.get("file") as File;
-
-    if (!file) {
-      console.log("Brak pliku");
-      return;
-    }
-
-    const req = await fetch("http://127.0.0.1:8000/api/post_questionnaire", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${localStorage.getItem('token')}`
-      },
-      body: form
-    });
-
-    if (req.ok) {
-      const data_json = await req.json();
-      const docx_data = data_json["mapping"]
-      sessionStorage.setItem("excelData", JSON.stringify(docx_data));
-      setIsExclePopUp(false);
-      navigate({ to: "/questionnaireParser" });
-    }
-  }
-
-  //TODO: Wyrzucić to do klas, bo się syf robi
   return <> 
     <div className='flex flex-row'>
       <nav className='navbar w-full flex flex-row justify-around h-15 bg-[#181c24]'>
@@ -93,8 +84,7 @@ export function Navbar() {
         )}
         </div>
         <div className='flex flex-row justify-around w-[20%]'>
-          <Button className='w-40 self-center bg-[#E8821A] z-1' type='button' onClick={handleDocxImportPopUp}>Importuj Docx</Button>
-          <Button className='w-40 self-center bg-[#E8821A] z-1' type='button' onClick={handleExcelImportPopUp}>Importuj Excel</Button>
+          <Button className='w-40 self-center bg-[#E8821A] z-1' type='button' onClick={() => setIsPopUp(!isPopUp)}>Importuj plik</Button>
         </div>
         {isPopUp &&
           <div className='file-input-popup z-3 w-100 h-25 absolute top-75 right-200 bg-amber-100 border-4 rounded-[16px]'>
@@ -102,18 +92,7 @@ export function Navbar() {
               <input id="file" name="file" type='file' className='bg-[#a0adc6] w-5/6 px-4 border-none rounded-2xl' required></input>
               <div className='flex flex-row w-100 justify-evenly'>
                 <Button type='submit'>Dalej</Button>
-                <Button type='submit' onClick={handleExcelImportPopUp}>Wstecz</Button>
-              </div>
-            </form>
-          </div>
-        }
-        {isExclePopUp &&
-          <div className='file-input-popup z-3 w-100 h-25 absolute top-75 right-200 bg-amber-100 border-4 rounded-[16px]'>
-            <form className='h-full flex flex-col justify-around items-center' onSubmit={(e) => {handleSubmitFileDoxc(e)}}>
-              <input id="file" name="file" type='file' className='bg-[#a0adc6] w-5/6 px-4 border-none rounded-2xl' required></input>
-              <div className='flex flex-row w-100 justify-evenly'>
-                <Button type='submit'>Dalej</Button>
-                <Button type='submit' onClick={handleDocxImportPopUp}>Wstecz</Button>
+                <Button type='submit' onClick={() => setIsPopUp(!isPopUp)}>Wstecz</Button>
               </div>
             </form>
           </div>
