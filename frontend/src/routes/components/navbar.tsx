@@ -10,6 +10,7 @@ export function Navbar() {
   const [isPopUp, setIsPopUp] = useState<boolean>(false);
   const navigate = useNavigate();
   const { setMapping } = useMapping();
+  //TODO: Pzenieść to do zmiennych środowiskowych
   const isExcel = check([0x50, 0x4B, 0x03, 0x04, 0x14, 0x00, 0x06, 0x00])
   const isWord = check([0x50, 0x4B, 0x03, 0x04, 0x14, 0x00, 0x08, 0x08])
 
@@ -31,7 +32,7 @@ export function Navbar() {
     );
 }
 
-  async function handleSubmitFile(e: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmitFile(e: React.SubmitEvent<HTMLFormElement>) {
     e.preventDefault();
     const form = new FormData(e.currentTarget);
     const file = form.get("file") as File;
@@ -87,12 +88,12 @@ export function Navbar() {
           <Button className='w-40 self-center bg-[#E8821A] z-1' type='button' onClick={() => setIsPopUp(!isPopUp)}>Importuj plik</Button>
         </div>
         {isPopUp &&
-          <div className='file-input-popup z-3 w-100 h-25 absolute top-75 right-200 bg-amber-100 border-4 rounded-[16px]'>
+          <div className='file-input-popup z-3 w-100 h-25 absolute top-75 right-200 bg-[#181c24] border-[#E8821A] border-4 rounded-[16px]'>
             <form className='h-full flex flex-col justify-around items-center' onSubmit={(e) => {handleSubmitFile(e)}}>
-              <input id="file" name="file" type='file' className='bg-[#a0adc6] w-5/6 px-4 border-none rounded-2xl' required></input>
+              <input id="file" name="file" type='file' className='bg-white w-5/6 px-4 border-none rounded-2xl' required></input>
               <div className='flex flex-row w-100 justify-evenly'>
-                <Button type='submit'>Dalej</Button>
-                <Button type='submit' onClick={() => setIsPopUp(!isPopUp)}>Wstecz</Button>
+                <Button className='bg-[#E8821A]' type='submit'>Dalej</Button>
+                <Button className='bg-[#E8821A]' type='submit' onClick={() => setIsPopUp(!isPopUp)}>Wstecz</Button>
               </div>
             </form>
           </div>
