@@ -78,7 +78,7 @@ export function Navbar() {
         {[
         {nav_label:"Dashboard", to:"/dashboard"}, 
         {nav_label:"Kwestionariusz", to:"/questionnaireParser"},
-        {nav_label:"Recoder", to:"/recoder"}].map((arr, i) => (
+        {nav_label:"Analiza", to:"/recoder"}].map((arr, i) => (
           <Link key={i} to={arr.to} className={`nav-option ${activeIndex === i ? "active" : ""} h-full w-30 flex justify-center`} onClick={() => {setActiveIndex(i)}}>
               <span className='text-[#8f96a8] h-full w-fit flex items-center select-none'>{arr.nav_label}</span>
           </Link>),

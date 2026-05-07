@@ -20,7 +20,7 @@ function questionnaireParser() {
         : null;
 
     useEffect(() => {
-        const raw =  sessionStorage.getItem("excelData");
+        const raw =  sessionStorage.getItem("wordData");
         if (!raw){
             console.error("No mapping item")
             return

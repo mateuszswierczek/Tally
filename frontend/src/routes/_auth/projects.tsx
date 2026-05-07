@@ -1,5 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { Navbar } from '../components/navbar'
+import { Navbar } from '../components/Navbar'
 import './navbar.css'
 
 export const Route = createFileRoute('/_auth/projects')({

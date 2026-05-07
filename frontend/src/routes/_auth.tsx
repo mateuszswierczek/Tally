@@ -1,5 +1,5 @@
 import { createFileRoute, redirect, Outlet } from '@tanstack/react-router'
-import { Navbar } from './components/navbar'
+import { Navbar } from './components/Navbar'
 
 export const Route = createFileRoute('/_auth')({
     beforeLoad: ({ context }) => {
