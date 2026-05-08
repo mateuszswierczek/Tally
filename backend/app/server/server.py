@@ -24,7 +24,7 @@ from jwt.exceptions import InvalidTokenError
 from datetime import datetime, timedelta, timezone
 from typing import Annotated
 from app.services.recoder.recoder import Recoder
-from app.services.recoder.exporter import write_to_excel
+from app.services.recoder.exporter2 import write_to_excel
 from app.services.recoder.exporter_merged import write_to_excel_merged
 from app.services.recoder.mapper import Mapper
 from app.services.analyzer.analyzer import Analyzer
@@ -135,26 +135,25 @@ async def receive_mapping(payload:MappingPayload, _= Depends(get_current_user)):
     crosstables = payload.crosstables
     merged = payload.merged
     analyzer = Analyzer(recoder.df, mapping, crosstables)
-    analyzer.create_frequencies_tables()
-    # mapper = Mapper(recoder.df)
-    # mapped_df = mapper.map_coding_onto_database(mapping, mapper.df)
-    # book_of_codes = mapper.create_book_of_codes(mapping)
+    mapper = Mapper(recoder.df)
+    mapped_df = mapper.map_coding_onto_database(mapping, mapper.df)
+    book_of_codes = mapper.create_book_of_codes(mapping)
     # if merged:
     #     ziped_files = write_to_excel_merged(mapper.df, 
     #                              mapped_df, 
     #                              mapping, 
     #                              book_of_codes,
     #                              crosstables)
-    # else:
-    #     ziped_files = write_to_excel(mapper.df, 
-    #                                 mapped_df, 
-    #                                 mapping, 
-    #                                 book_of_codes,
-    #                                 crosstables)
-    # return StreamingResponse(ziped_files, 
-    #                         200, 
-    #                         media_type="application/zip",
-    #                         headers={"Content-Disposition": "attachment; filename=Baza danych.zip"})
+    #else:
+    ziped_files = write_to_excel(analyzer, 
+                                    mapper.df, 
+                                    mapped_df, 
+                                    mapping, 
+                                    book_of_codes)
+    return StreamingResponse(ziped_files, 
+                            200, 
+                            media_type="application/zip",
+                            headers={"Content-Disposition": "attachment; filename=Baza danych.zip"})
 
 @app.post("/api/post_questionnaire")
 async def receive_questionnaire(file:UploadFile = File(...), _=Depends(get_current_user)):
