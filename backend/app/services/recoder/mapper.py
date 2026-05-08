@@ -5,16 +5,9 @@ from .serializer import Serializer
 class Mapper:
     """Nakłada schemat kodowania kafeterii na DataFrame bazy danych."""
 
-    def __init__(self, data_path:str):
-        self.df = self.load(data_path)
+    def __init__(self, df:pd.DataFrame):
+        self.df = df.copy()
         self.serializer = Serializer()
-
-    def load(self, data_path:str) -> pd.DataFrame:
-        """Wczytuje CSV z podanej ścieżki."""
-        try:
-            return pd.read_csv(data_path)
-        except Exception:
-            raise ValueError()
 
     def map_coding_onto_database(self, mapping:list[Question], df:pd.DataFrame) -> pd.DataFrame:
         """Zamienia wartości tekstowe kafeterii na indeksy numeryczne."""

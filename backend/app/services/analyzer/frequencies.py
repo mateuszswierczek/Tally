@@ -3,8 +3,8 @@ from app.services.recoder.schema import Question
 from app.services.recoder.detector import Detector
 from typing import Generator
 
-def generate_frequencies_table(mapping:list[Question]) -> Generator[tuple[pd.DataFrame, pd.Series | pd.DataFrame | None]]:
-    df = pd.read_csv("/Users/mateusz/Desktop/Projekty/Tally/backend/app/server/data.csv")
+def generate_frequencies_table(mapping:list[Question], df:pd.DataFrame) -> Generator[tuple[pd.DataFrame, pd.Series | pd.DataFrame | None]]:
+    #df = pd.read_csv("/Users/mateusz/Desktop/Projekty/Tally/backend/app/server/data.csv")
     for col in mapping:
         if col.cafeteria is None:
             # other_question = _create_value_counts_table(df[col.question], col) 

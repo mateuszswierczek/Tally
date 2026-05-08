@@ -24,7 +24,7 @@ def write_to_excel_merged(decoded:pd.DataFrame, encodec:pd.DataFrame, mapping:li
             decoded.to_excel(writer, sheet_name="Baza rozkodowana", index=False, na_rep="999")
             encodec.to_excel(writer, sheet_name="Baza zakodowana", index=False, na_rep="999")
             book_of_codes.to_excel(writer, sheet_name="Księga kodów", index=False)
-            frequencies_tables = generate_frequencies_table(mapping)
+            frequencies_tables = generate_frequencies_table(mapping, decoded)
             for frequencies_table in frequencies_tables:
                 frequencies_table[0].to_excel(writer, 
                                            startcol=STARTCOL,
@@ -39,7 +39,7 @@ def write_to_excel_merged(decoded:pd.DataFrame, encodec:pd.DataFrame, mapping:li
                                             index=False) 
                 startrow += frequencies_table[0].shape[0] + BUFFER 
             if crosstables:
-                frequencies_tables = generate_frequencies_table(mapping)
+                frequencies_tables = generate_frequencies_table(mapping, decoded)
                 crosstables_gen = generate_crosstable_merged(mapping, crosstables)
                 startrow = 1 
                 for frequencies_table in frequencies_tables:

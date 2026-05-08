@@ -27,6 +27,7 @@ from app.services.recoder.recoder import Recoder
 from app.services.recoder.exporter import write_to_excel
 from app.services.recoder.exporter_merged import write_to_excel_merged
 from app.services.recoder.mapper import Mapper
+from app.services.analyzer.analyzer import Analyzer
 from app.services.surveyParser.parser import QuestionnaireParser
 from app.services.surveyParser.lime_parser import LimeParser
 from file_sanitizer import sanitize_excel_file
@@ -51,7 +52,6 @@ ADMIN_USER = os.environ["USERNAME"]
 ADMIN_PASSWORD = os.environ["PASSWORD"]
 
 app = FastAPI(docs_url=None, redoc_url=None, openapi_url=None)
-
 app.add_middleware(
     CORSMiddleware,
     allow_origins = ORIGINS,
@@ -77,6 +77,10 @@ def authenticate_user(login, password, db=None):
     if password == ADMIN_PASSWORD:
         return True
     return False
+
+def set_recoder(content:BytesIO, filename:str) -> None: 
+    global recoder
+    recoder = Recoder(content, filename)
 
 async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
     credentials_exception = HTTPException(
@@ -120,36 +124,37 @@ async def auth_users_for_token(form_data: Annotated[OAuth2PasswordRequestForm, D
 async def receive_excel_file(file: UploadFile = File(...), _= Depends(get_current_user)):
     await sanitize_excel_file(file)
     content = await file.read()
-    recoder = Recoder(BytesIO(content), file.filename)
+    assert file.filename is not None
+    set_recoder(BytesIO(content), file.filename)
     recoder.parser.iterate()
-    recoder.save_db()
-    mapping = recoder.parser.mapping_data
-    return {"mapping":mapping}
+    return {"mapping":recoder.parser.mapping_data}
 
 @app.post("/api/post_mapping")
 async def receive_mapping(payload:MappingPayload, _= Depends(get_current_user)):
     mapping = payload.mapping
     crosstables = payload.crosstables
     merged = payload.merged
-    mapper = Mapper("/Users/mateusz/Desktop/Projekty/Tally/backend/app/server/data.csv")
-    mapped_df = mapper.map_coding_onto_database(mapping, mapper.df)
-    book_of_codes = mapper.create_book_of_codes(mapping)
-    if merged:
-        ziped_files = write_to_excel_merged(mapper.df, 
-                                 mapped_df, 
-                                 mapping, 
-                                 book_of_codes,
-                                 crosstables)
-    else:
-        ziped_files = write_to_excel(mapper.df, 
-                                    mapped_df, 
-                                    mapping, 
-                                    book_of_codes,
-                                    crosstables)
-    return StreamingResponse(ziped_files, 
-                            200, 
-                            media_type="application/zip",
-                            headers={"Content-Disposition": "attachment; filename=Baza danych.zip"})
+    analyzer = Analyzer(recoder.df, mapping, crosstables)
+    analyzer.create_frequencies_tables()
+    # mapper = Mapper(recoder.df)
+    # mapped_df = mapper.map_coding_onto_database(mapping, mapper.df)
+    # book_of_codes = mapper.create_book_of_codes(mapping)
+    # if merged:
+    #     ziped_files = write_to_excel_merged(mapper.df, 
+    #                              mapped_df, 
+    #                              mapping, 
+    #                              book_of_codes,
+    #                              crosstables)
+    # else:
+    #     ziped_files = write_to_excel(mapper.df, 
+    #                                 mapped_df, 
+    #                                 mapping, 
+    #                                 book_of_codes,
+    #                                 crosstables)
+    # return StreamingResponse(ziped_files, 
+    #                         200, 
+    #                         media_type="application/zip",
+    #                         headers={"Content-Disposition": "attachment; filename=Baza danych.zip"})
 
 @app.post("/api/post_questionnaire")
 async def receive_questionnaire(file:UploadFile = File(...), _=Depends(get_current_user)):
