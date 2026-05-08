@@ -1,6 +1,6 @@
 import pandas as pd
 from app.services.recoder.schema import Question
-from app.services.analyzer.schema import FrequencieTable, MAQTable
+from app.services.analyzer.schema import FrequencieTable, MAQTable, MatrixTable
 from app.services.recoder.detector import Detector
 
 class Analyzer:
@@ -34,7 +34,21 @@ class Analyzer:
                                  percentage_QUESTION_table=percentage_QUESTION_table,
                                  combined_table=combined_table)
                 else:
-                    value_count = self._create_matrix_counts_table(col)
+                    value_count, percentage_table, combined_table = self._create_matrix_counts_table(col)
+                    table = MatrixTable(frequncie_table=value_count, 
+                                        percentage_table=percentage_table, 
+                                        combined_table=combined_table,
+                                        subquestions=[])
+                    for subquestion in col.subquestions:
+                        assert col.cafeteria is not None
+                        question = pd.Categorical(self.df[subquestion.question], 
+                                [cafe.value for cafe in col.cafeteria])
+                        value_count, percentage_table, combined_table = self._create_frequencie_table(question, subquestion)
+                        subq = FrequencieTable(frequncie_table=value_count,
+                                                percentage_table=percentage_table,
+                                                combined_table=combined_table)
+                        table.subquestions.append(subq)
+            self.tables.append(table)
 
     def _create_frequencie_table(self, question:pd.Series | pd.Categorical | pd.DataFrame, col:Question):
         counts_table = self._calcualate_counts_table(question)
@@ -52,11 +66,10 @@ class Analyzer:
     def _create_matrix_counts_table(self, col:Question):
         matrix = self._assert_matrix_table_sort(col)
         result = self._calcualate_counts_table(matrix.melt())
-        pivoted = result.pivot(columns="value", index="variable").fillna(0)
-        #pivoted.columns = pivoted.columns.droplevel(0)
-        #pivoted = pivoted.iloc[:, col.unique_count:].reset_index()
-        print(pivoted)
-        return pivoted
+        percentage_matrix = self._calculate_percentage_table(result.copy(), col)
+        combined_matrix = self._calculate_percentage_table(result.copy(), col)
+        counts_matrix = result.copy().pivot(columns="value", index="variable").fillna(0)
+        return self._add_columnt_tile(counts_matrix, col), self._add_columnt_tile(percentage_matrix, col), self._add_columnt_tile(combined_matrix, col)
 
     def _create_maq_table(self, col:Question):
         maq = self._assert_maq_table_sort(col)

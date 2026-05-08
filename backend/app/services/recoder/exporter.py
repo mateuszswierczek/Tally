@@ -24,7 +24,7 @@ def write_to_excel(decoded:pd.DataFrame, encodec:pd.DataFrame, mapping:list[Ques
             decoded.to_excel(writer, sheet_name="Baza rozkodowana", index=False, na_rep="999")
             encodec.to_excel(writer, sheet_name="Baza zakodowana", index=False, na_rep="999")
             book_of_codes.to_excel(writer, sheet_name="Księga kodów", index=False)
-            frequencies_tables = generate_frequencies_table(mapping)
+            frequencies_tables = generate_frequencies_table(mapping, decoded)
             for frequencies_table in frequencies_tables:
                 frequencies_table[0].to_excel(writer, 
                                            startcol=STARTCOL,
