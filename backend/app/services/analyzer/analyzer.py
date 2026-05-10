@@ -28,7 +28,7 @@ class Analyzer:
                         self.crosstable_tables.append(crosstab)
             else:
                 crosstab = self._create_crosstab(col)
-            self.crosstable_tables.append(crosstab)
+            self.crosstable_tables.append(crosstab) # type: ignore
 
 
     def _create_crosstab(self, question:Question) -> pd.DataFrame:
@@ -156,8 +156,8 @@ class Analyzer:
                             cross_table = FrequencieTable(frequncie_table=value_count,
                                                 percentage_table=percentage_table,
                                                 combined_table=combined_table)                        
-                    table.crosstables.append(cross_table)
-        self.tables.append(table)
+                    table.crosstables.append(cross_table) # type: ignore
+        self.tables.append(table) # type: ignore
 
     def _create_frequencie_table(self, question:pd.Series | pd.Categorical | pd.DataFrame, col:Question):
         counts_table = self._calcualate_counts_table(question)

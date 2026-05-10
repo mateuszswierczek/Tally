@@ -24,8 +24,7 @@ from jwt.exceptions import InvalidTokenError
 from datetime import datetime, timedelta, timezone
 from typing import Annotated
 from app.services.recoder.recoder import Recoder
-from app.services.recoder.exporter2 import write_to_excel
-from app.services.recoder.exporter_merged import write_to_excel_merged
+from app.services.recoder.exporter import write_to_excel
 from app.services.recoder.mapper import Mapper
 from app.services.analyzer.analyzer import Analyzer
 from app.services.surveyParser.parser import QuestionnaireParser
@@ -138,13 +137,6 @@ async def receive_mapping(payload:MappingPayload, _= Depends(get_current_user)):
     mapper = Mapper(recoder.df)
     mapped_df = mapper.map_coding_onto_database(mapping, mapper.df)
     book_of_codes = mapper.create_book_of_codes(mapping)
-    # if merged:
-    #     ziped_files = write_to_excel_merged(mapper.df, 
-    #                              mapped_df, 
-    #                              mapping, 
-    #                              book_of_codes,
-    #                              crosstables)
-    #else:
     ziped_files = write_to_excel(analyzer, 
                                     mapper.df, 
                                     mapped_df, 
