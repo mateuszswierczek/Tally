@@ -39,14 +39,12 @@ def write_to_excel(analyzer:Analyzer, decoded:pd.DataFrame, encodec:pd.DataFrame
                                            startrow=startrow,
                                            sheet_name="Częstości") 
                 startrow += table.frequncie_table.shape[0] + 1 + BUFFER
-            
             startrow = 0
             for crosstable in cross_tables:
                 crosstable.to_excel(writer, 
                                            startcol=STARTCOL,
                                            startrow=startrow,
                                            sheet_name="Krzyżówki")
-
                 startrow += crosstable.shape[0] + 1 + BUFFER
         spss_file = write_to_spss(decoded, mapping)
         zf.writestr("Baza danych.xlsx", excel_buffer.getvalue())
