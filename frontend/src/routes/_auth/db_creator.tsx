@@ -2,6 +2,7 @@ import { createFileRoute } from '@tanstack/react-router'
 import { Box, boxesIntersect, useSelectionContainer } from '@air/react-drag-to-select'
 import { useState, useRef, useEffect } from 'react';
 import { useMapping } from '@/context/MappingContext';
+import { date } from 'zod';
 
 export const Route = createFileRoute('/_auth/db_creator')({
   component: DBCreator,
@@ -20,15 +21,44 @@ interface Section {
     height: number;
 }
 
+
 function DBCreator() {
     const [sections, setSections] = useState<Section[]>([]);
     const [mousePosStart, setMousePosStart] = useState<MousePos | null>(null);
     const [selectionBox, setSelectionBox] = useState<Box>();
     const [selectedIndexes, setSelectedIndexes] = useState<number[]>([]);
     const selectableItems = useRef<Box[]>([]);
+    const refElement = useRef<Box[]>([]);
+    
+    const selectableItemsIndices = useRef<number[]>([]);
+    
     const elementsContainerRef = useRef<HTMLDivElement | null>(null);
     const {mapping, setMapping} = useMapping();   
     const [drawableQuestions, setDrawableQuestions] = useState<[]>([]);
+    
+    const [selectedMappingItems, setSelectedMappingItems] = useState<any[]>([]);
+
+    const updateSelectableItems = () => {
+        if (elementsContainerRef.current) {
+            selectableItems.current = [];
+            selectableItemsIndices.current = [];
+
+            const items = elementsContainerRef.current.querySelectorAll('[data-selectable="true"]')
+            items.forEach((item) => {
+                const index = parseInt(item.getAttribute('data-mapping-index') || '-1');
+                
+                const { left, top, width, height} = item.getBoundingClientRect();
+                selectableItems.current.push({
+                    left: left + window.scrollX,
+                    top: top + window.scrollY,
+                    width,
+                    height,
+                });
+                
+                selectableItemsIndices.current.push(index);
+            });
+        }
+    };
 
     const { DragSelection } = useSelectionContainer({
         shouldStartSelecting: (target) => {
@@ -52,6 +82,7 @@ function DBCreator() {
 
             setSelectionBox(scrollAwareBox);
             const indexesToSelect: number[] = [];
+            
             selectableItems.current.forEach((item, index) => {
                 if (boxesIntersect(scrollAwareBox, item)) {
                     indexesToSelect.push(index);
@@ -59,7 +90,13 @@ function DBCreator() {
             });
 
             setSelectedIndexes(indexesToSelect);
-            console.log(indexesToSelect)
+            
+            const selectedItems = indexesToSelect.map(idx => {
+                const mappingIndex = selectableItemsIndices.current[idx];
+                return drawableQuestions[mappingIndex];
+            }).filter(Boolean);
+            
+            setSelectedMappingItems(selectedItems);
         },
         selectionProps: {
             style:{
@@ -73,42 +110,44 @@ function DBCreator() {
                 mouse_y: e.pageY,
             });
         },
+        //TODO: Poprawić to, bo nie działa ze zmianą strony 
         onSelectionEnd: (e) => {
+            const clamp = (num, min, max) => Math.min(Math.max(num, min), max);
+            
             if (!mousePosStart) return;
             
-            const endX = e.pageX;
-            const endY = e.pageY;
+            const ref = elementsContainerRef.current?.getBoundingClientRect();
+            if (!ref) return;
             
-            const x = Math.min(mousePosStart.mouse_x, endX);
-            const y = Math.min(mousePosStart.mouse_y, endY);
+            const refLeft = ref.left + window.scrollX;
+            const refTop = ref.top + window.scrollY;
+            const refRight = refLeft + ref.width;
+            const refBottom = refTop + ref.height;
+            
+            const startX = clamp(mousePosStart.mouse_x, refLeft, refRight);
+            const startY = clamp(mousePosStart.mouse_y, refTop, refBottom);
+            const endX = clamp(e.pageX, refLeft, refRight);
+            const endY = clamp(e.pageY, refTop, refBottom);
+            
+            const rawX = Math.min(startX, endX);
+            const rawY = Math.min(startY, endY);
+            const width = Math.abs(startX - endX);
+            const height = Math.abs(startY - endY);
+
+            const x = clamp(rawX, refLeft, refRight - width);
+            const y = clamp(rawY, refTop, refBottom - height);
             
             const newSection: Section = {
                 id: Date.now(),
                 x: x,
-                y: y,
-                width: Math.abs(mousePosStart.mouse_x - endX), 
-                height: Math.abs(mousePosStart.mouse_y - endY), 
+                y: y - 80,
+                width: width,
+                height: height,
             };
             
             setSections(prev => [...prev, newSection]);
-        }   
+}
     });
-
-    const updateSelectableItems = () => {
-        if (elementsContainerRef.current) {
-            selectableItems.current = [];
-            const items = elementsContainerRef.current.querySelectorAll('[data-selectable="true"]');
-            items.forEach((item) => {
-                const { left, top, width, height } = item.getBoundingClientRect();
-                selectableItems.current.push({
-                    left: left + window.scrollX,
-                    top: top + window.scrollY,
-                    width,
-                    height,
-                });
-            });
-        }
-    };
 
     useEffect(() => {
         updateSelectableItems();
@@ -132,8 +171,7 @@ function DBCreator() {
                                 return mapping[index];
                             });
                             setDrawableQuestions(selectedQuestions);
-                        }}
-                    >
+                        }}>
                         <select className='h-[90%] w-full' name='question' id='question' multiple>
                             {mapping && 
                                 mapping.map((value, index) => (
@@ -145,8 +183,7 @@ function DBCreator() {
                         </select>
                         <button 
                             className='w-25 h-15 bg-[#181c24] border-[#E8821A] border-2 rounded-[16px]' 
-                            type='submit'
-                        >
+                            type='submit'>
                             Dalej
                         </button>
                     </form>
@@ -158,7 +195,7 @@ function DBCreator() {
                             className='w-25 h-15 ml-10 mt-10 bg-[#181c24] z-10 border-[#E8821A] border-2 rounded-[16px] relative'
                             key={index}
                             data-selectable="true"
-                        >
+                            data-mapping-index={index}>
                             {value.question}
                         </div>
                     ))}
@@ -168,11 +205,10 @@ function DBCreator() {
                             className='bg-[#1113185b] rounded-2xl absolute border border-white pointer-events-none'
                             style={{ 
                                 left: `${section.x - 400}px`,
-                                top: `${section.y - 125}px`,
+                                top: `${section.y}px`,
                                 width: `${section.width}px`, 
                                 height: `${section.height}px` 
-                            }}
-                        />
+                            }}/>
                     ))}
                 </div>
             </div>
