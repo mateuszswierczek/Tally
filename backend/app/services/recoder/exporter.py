@@ -6,7 +6,7 @@ import io
 import os
 import re
 
-from app.services.analyzer.schema import FrequencieTable, MAQTable, MatrixTable
+from app.services.analyzer.schema import FrequencieTable, MAQTable, MatrixTable, Crosstable
 from app.services.analyzer.analyzer import Analyzer
 from app.services.recoder.schema import Question
 
@@ -21,7 +21,7 @@ def write_to_excel(analyzer:Analyzer, decoded:pd.DataFrame, encodec:pd.DataFrame
     analyzer.create_frequencies_tables()
     analyzer.generate_crosstable()
     frequencies_tables:list[FrequencieTable | MAQTable | MatrixTable] = analyzer.tables
-    cross_tables:list[pd.DataFrame] = analyzer.crosstable_tables
+    cross_tables:list[Crosstable] = analyzer.crosstable_tables
 
     with zipfile.ZipFile(buffer, "w") as zf:
         excel_buffer = io.BytesIO()
@@ -35,17 +35,17 @@ def write_to_excel(analyzer:Analyzer, decoded:pd.DataFrame, encodec:pd.DataFrame
                                            startrow=startrow,
                                            sheet_name="Częstości") 
                 table.percentage_table.to_excel(writer, 
-                                           startcol=STARTCOL_PERCENTAGE if table.combined_table.shape[1] < STARTCOL_PERCENTAGE else table.combined_table.shape[1] + BUFFER,
+                                           startcol=STARTCOL_PERCENTAGE if table.combined_table.shape[1] < STARTCOL_PERCENTAGE else table.combined_table.shape[1] + 1 + BUFFER,
                                            startrow=startrow,
                                            sheet_name="Częstości") 
                 startrow += table.frequncie_table.shape[0] + 1 + BUFFER
             startrow = 0
             for crosstable in cross_tables:
-                crosstable.to_excel(writer, 
+                crosstable.combined_table.to_excel(writer, 
                                            startcol=STARTCOL,
                                            startrow=startrow,
                                            sheet_name="Krzyżówki")
-                startrow += crosstable.shape[0] + 1 + BUFFER
+                startrow += crosstable.combined_table.shape[0] + 1 + BUFFER
         spss_file = write_to_spss(decoded, mapping)
         zf.writestr("Baza danych.xlsx", excel_buffer.getvalue())
         zf.writestr("Baza danych.sav", spss_file.getvalue())

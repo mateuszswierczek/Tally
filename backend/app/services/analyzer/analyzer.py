@@ -1,7 +1,8 @@
 import pandas as pd
 from app.services.recoder.schema import Question
-from app.services.analyzer.schema import FrequencieTable, MAQTable, MatrixTable
+from app.services.analyzer.schema import FrequencieTable, MAQTable, MatrixTable, Crosstable
 from app.services.recoder.detector import Detector
+from typing import Generator
 
 class Analyzer:
     def __init__(self, df:pd.DataFrame, mapping:list[Question], crosstables:list[str]):
@@ -16,41 +17,45 @@ class Analyzer:
         for col in self.mapping:
             if col.question is None:
                 continue            
-            if col.cafeteria is None:
-                crosstab = self._create_crosstab(col)
-            elif col.subquestions is not None:
+            if col.subquestions is not None:
                 if col.is_maq:
                     crosstab = self._create_maq_crosstab(col)
                 else:
                     for inner_col in col.subquestions:
                         assert inner_col.question is not None
-                        crosstab = self._create_crosstab(inner_col)
+                        counts, combined, percentage  = self._create_crosstab(inner_col)
+                        crosstab = Crosstable(
+                            cross_table=counts,
+                            percentage_table=percentage,
+                            combined_table=combined
+                        )
                         self.crosstable_tables.append(crosstab)
             else:
-                crosstab = self._create_crosstab(col)
+                counts, combined, percentage  = self._create_crosstab(col)
+                crosstab = Crosstable(
+                    cross_table=counts,
+                    percentage_table=percentage,
+                    combined_table=combined
+                )
             self.crosstable_tables.append(crosstab) # type: ignore
 
-
-    def _create_crosstab(self, question:Question) -> pd.DataFrame:
+    def _create_crosstab(self, question:Question):
         categories = [cafe.value for cafe in question.cafeteria] if question.cafeteria else None
-        print(question.question)
         question_series = pd.Categorical(self.df[question.question], categories) if categories else self.df[question.question]
-        sections = []
+        sections_counts:list[pd.DataFrame] = []
+        sections_percentege:list[pd.DataFrame] = []
         for cross_col in self.crosstables:
-            ct = pd.crosstab(question_series, self.df[cross_col])
-            pct = ct.div(ct.sum(axis=0), axis=1) * 100
-
-            interleaved_rows = []
-            for idx in ct.index:
-                interleaved_rows.append(ct.loc[idx].rename((idx, "n")))
-                interleaved_rows.append(pct.loc[idx].rename((idx, "% z kolumny")))
-
-            section = pd.DataFrame(interleaved_rows)
-            section.index = pd.MultiIndex.from_tuples(section.index)
-            section.columns = pd.MultiIndex.from_product([[cross_col], ct.columns])
-            sections.append(section)
-
-        return pd.concat(sections, axis=1)
+            cross_table_counts = pd.crosstab(question_series, self.df[cross_col])
+            cross_table_combined = cross_table_counts.copy()
+            for col in cross_table_combined.columns:
+                cross_table_combined[f'% {col}'] = cross_table_combined[col] / cross_table_combined[col].sum()
+            cross_table_percentage = cross_table_combined.copy().drop(columns=[col for col in cross_table_combined.columns if "%" not in col])
+            sections_counts.append(cross_table_counts)
+            sections_percentege.append(cross_table_percentage)
+        counts = pd.concat(sections_counts, axis=1)
+        combined = pd.concat(sections_counts + sections_percentege, axis=1)
+        percentage = pd.concat(sections_percentege, axis=1)
+        return counts, combined, percentage
 
     def _create_maq_crosstab(
         self,
@@ -130,34 +135,8 @@ class Analyzer:
                                                 percentage_table=percentage_table,
                                                 combined_table=combined_table)
                         table.subquestions.append(subq)
-                for crosstable in self.crosstables:
-                    if col.subquestions is None:
-                        self.crosstab_df = pd.crosstab(self.df[col.question], self.df[crosstable])
-                        try:
-                            question =(pd.Categorical(self.crosstab_df[col.question], 
-                                        [unique for unique in self.crosstab_df[col.question].unique()].sort()) if col.cafeteria is None 
-                                else  
-                                    pd.Categorical(self.crosstab_df[col.question], 
-                                        [cafe.value for cafe in col.cafeteria])
-                            )
-                        except:
-                            question = self.crosstab_df[col.question]
-                        value_count, percentage_table, combined_table = self._create_frequencie_table(question, col)
-                        cross_table = FrequencieTable(frequncie_table=value_count,
-                                                        percentage_table=percentage_table,
-                                                            combined_table=combined_table)
-                    else:
-                        for subquestion in col.subquestions:
-                            assert subquestion.cafeteria is not None
-                            question = pd.Categorical(self.df[subquestion.question], 
-                                    [cafe.value for cafe in subquestion.cafeteria])
-                            self.crosstab_df = pd.crosstab(question, self.df[crosstable])
-                            value_count, percentage_table, combined_table = self._create_frequencie_table(question, subquestion)
-                            cross_table = FrequencieTable(frequncie_table=value_count,
-                                                percentage_table=percentage_table,
-                                                combined_table=combined_table)                        
-                    table.crosstables.append(cross_table) # type: ignore
-        self.tables.append(table) # type: ignore
+            self.tables.append(table)
+           
 
     def _create_frequencie_table(self, question:pd.Series | pd.Categorical | pd.DataFrame, col:Question):
         counts_table = self._calcualate_counts_table(question)

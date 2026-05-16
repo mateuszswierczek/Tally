@@ -3,14 +3,12 @@ from typing import Literal
 from enum import StrEnum
 
 class ColumnType(StrEnum):
-    """Poziom zmiennej w sensie statystycznym."""
     ordinal = "ordinal"
     nominal = "nominal"
     continuous = "continuous"
     text = "text"
 
 class Question(BaseModel):
-    """Pojedyńcze pytanie ankiety."""
     question: str | None
     index: int | None
     type: Literal["ordinal", "nominal", "continuous", "text"]
@@ -24,7 +22,6 @@ class Question(BaseModel):
     is_maq:bool = False
 
 class Cafeteria(BaseModel):
-    """Pojedyncza odpowiedź w kafeterii pytania."""
     value: str | None = None
     index: int | None = None
     n: int | None = None

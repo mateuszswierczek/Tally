@@ -5,8 +5,6 @@ from .detector import Detector
 from typing import Generator
 
 class QuestionIterator:
-    """Iteruje kolumny DataFrame, grupuje podpytania i buduje obiekty Question z kafeterią."""
-
     COLS_TO_DROP = ["ID odpowiedzi", "Data zakończenia", "Ostatnia strona", "Język początkowy", "pid", "Inne"]
 
     def __init__(self, df:pd.DataFrame) -> None:
@@ -87,7 +85,6 @@ class QuestionIterator:
         return temp
 
     def _iterate_subquestion(self, temp_subquestions) -> Question:
-        """Scala listę podpytań w jedno pytanie główne ze wspólną kafeterią."""
         first_question = temp_subquestions[0]
         cafeteria_dict = pd.Series(self._iterate_subquestions_cafeteria(temp_subquestions))
         main_question_cafeteria = self._iterate_cafeteria(cafeteria_dict, first_question.total_count)
@@ -104,7 +101,6 @@ class QuestionIterator:
         return question
 
     def _iterate_subquestions_cafeteria(self, subquestion:list[Question]) -> dict:
-        """Zbiera unikalne wartości kafeterii ze wszystkich podpytań i mapuje je na indeksy."""
         cafe_values = []
         for q in subquestion:
             cafe = q.cafeteria

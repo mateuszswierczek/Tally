@@ -7,7 +7,6 @@ class FrequencieTable(BaseModel):
     frequncie_table:pd.DataFrame
     percentage_table:pd.DataFrame
     combined_table:pd.DataFrame
-    crosstables:list = []
 
 class MAQTable(FrequencieTable):
     model_config = ConfigDict(arbitrary_types_allowed=True)   
@@ -18,3 +17,10 @@ class MatrixTable(FrequencieTable):
     model_config = ConfigDict(arbitrary_types_allowed=True)   
 
     subquestions:list['FrequencieTable']
+
+class Crosstable(BaseModel):
+    model_config = ConfigDict(arbitrary_types_allowed=True)   
+
+    cross_table:pd.DataFrame
+    percentage_table:pd.DataFrame
+    combined_table:pd.DataFrame   

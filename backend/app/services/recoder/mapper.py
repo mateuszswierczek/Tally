@@ -3,14 +3,11 @@ from .schema import Question
 from .serializer import Serializer
 
 class Mapper:
-    """Nakłada schemat kodowania kafeterii na DataFrame bazy danych."""
-
     def __init__(self, df:pd.DataFrame):
         self.df = df.copy()
         self.serializer = Serializer()
 
     def map_coding_onto_database(self, mapping:list[Question], df:pd.DataFrame) -> pd.DataFrame:
-        """Zamienia wartości tekstowe kafeterii na indeksy numeryczne."""
         df_copy = df.copy()
 
         for question in mapping:
@@ -25,7 +22,6 @@ class Mapper:
         return df_copy
     
     def create_book_of_codes(self, mapping:list[Question]) -> pd.DataFrame:
-        """Tworzy DataFrame z zestawieniem kodów (wartość → indeks) dla każdego pytania."""
         df_of_codes = pd.DataFrame()
         for question in mapping:
             if question.cafeteria_dump is None:

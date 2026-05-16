@@ -4,8 +4,6 @@ from io import BytesIO
 import pandas as pd
 
 class Recoder:
-    """Wejściowy punkt przetwarzania — ładuje plik i inicjalizuje Parser."""
-
     def __init__(self, file, filename):
         self.file = file
         self.filename = filename
@@ -14,7 +12,6 @@ class Recoder:
         self.parser = Parser(self.df)
 
     def _detect_encoding_with_unicode_dammit(self, excel:BytesIO) -> str | None:
-        """Wykrywa kodowanie pliku binarnego."""
         try:
             content =  excel.read()
             suggestion = UnicodeDammit(content)
@@ -23,12 +20,10 @@ class Recoder:
             raise ValueError("An error occurred with UnicodeDammit") from e
 
     def save_db(self):
-        """Zapisuje DataFrame do CSV (ścieżka hardkodowana — TODO)."""
         self.df.to_csv('/Users/mateusz/Desktop/Projekty/Tally/backend/app/server/data.csv', encoding='utf-8')
 
     @staticmethod
     def _excel_to_dataframe(excel:BytesIO, filename:str, encoding:str | None) -> pd.DataFrame:
-        """Konwertuje plik .csv lub .xlsx do DataFrame."""
         if not filename:
             raise ValueError("Brak nazwy pliku")
         excel.seek(0)
