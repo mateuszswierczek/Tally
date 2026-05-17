@@ -34,7 +34,7 @@ class Analyzer:
                     # self.crosstable_tables.append(crosstab)
                     for inner_col in col.subquestions:
                         assert inner_col.question is not None
-                        counts, combined, percentage  = self._create_crosstab(inner_col)
+                        counts, combined, percentage  = self._create_crosstab(inner_col, col)
                         crosstab = Crosstable(
                             cross_table=counts,
                             percentage_table=percentage,
@@ -50,13 +50,15 @@ class Analyzer:
                 )
             self.crosstable_tables.append(crosstab) # type: ignore
 
-    def _create_crosstab(self, question:Question) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+    def _create_crosstab(self, question:Question, colu:Question | None= None) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
         categories = [cafe.value for cafe in question.cafeteria] if question.cafeteria else None
-        question_series = pd.Categorical(self.df[question.question], categories) if categories else self.df[question.question]
+        if colu and colu.cafeteria:
+            categories = [cafe.value for cafe in colu.cafeteria]
+        question_series = pd.Categorical(self.df[question.question], categories, ordered=True) if categories else self.df[question.question].fillna(0)
         sections_counts:list[pd.DataFrame] = []
         sections_percentege:list[pd.DataFrame] = []
         for cross_col in self.crosstables:
-            cross_table_counts = pd.crosstab(question_series, self.df[cross_col])
+            cross_table_counts = pd.crosstab(question_series, self.df[cross_col], dropna=False)
             cross_table_combined = cross_table_counts.copy()
             for col in cross_table_combined.columns:
                 cross_table_combined[f'% {col}'] = cross_table_combined[col] / cross_table_combined[col].sum()
