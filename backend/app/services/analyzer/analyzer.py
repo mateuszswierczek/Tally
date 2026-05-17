@@ -23,10 +23,15 @@ class Analyzer:
                             cross_table=counts,
                             percentage_table=percentage,
                             combined_table=combined
-                        )
-                    self.crosstable_tables.append(crosstab)
-
+                    )
                 else:
+                    # counts, combined, percentage  = self._create_crosstab(col)
+                    # crosstab = Crosstable(
+                    #         cross_table=counts,
+                    #         percentage_table=percentage,
+                    #         combined_table=combined
+                    #     )
+                    # self.crosstable_tables.append(crosstab)
                     for inner_col in col.subquestions:
                         assert inner_col.question is not None
                         counts, combined, percentage  = self._create_crosstab(inner_col)
@@ -82,7 +87,7 @@ class Analyzer:
                     count = count.drop(index=0, axis=0)
                 except:
                     pass
-                count = count.rename(index={1:sub_col}).reset_index(names=[col.question])
+                count = count.rename(index={1:sub_col})
                 combined = count.copy()
                 for per_col in combined.columns:
                     n = value_count.get(per_col, 0)
@@ -97,6 +102,8 @@ class Analyzer:
                 percentage_list.append(percentage)
             c = pd.concat(counts, axis=0)
             p = pd.concat(percentage_list, axis=0)
+            print(c)
+            print(p)
             sections_counts.append(c)
             sections_percentage.append(p)
 
