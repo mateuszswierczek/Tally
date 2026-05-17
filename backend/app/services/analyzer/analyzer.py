@@ -18,7 +18,14 @@ class Analyzer:
                 continue            
             if col.subquestions is not None:
                 if col.is_maq:
-                    crosstab = self._create_maq_crosstab(col)
+                    counts, combined, percentage = self._create_maq_crosstab(col)
+                    crosstab = Crosstable(
+                            cross_table=counts,
+                            percentage_table=percentage,
+                            combined_table=combined
+                        )
+                    self.crosstable_tables.append(crosstab)
+
                 else:
                     for inner_col in col.subquestions:
                         assert inner_col.question is not None
@@ -56,27 +63,48 @@ class Analyzer:
         percentage = pd.concat(sections_percentege, axis=1)
         return counts, combined, percentage
 
-    def _create_maq_crosstab(
-        self,
-        col: Question,
-    ):
-        detector = Detector()
+    def _create_maq_crosstab(self, col: Question) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
         assert col.cafeteria_dump
         assert col.subquestions
         main_mapping = {cafe["value"]: cafe["index"] for cafe in col.cafeteria_dump}
         subquestions_columns = [subq.question for subq in col.subquestions]
+        maq = self.df[subquestions_columns].apply(lambda x: x.map(main_mapping))
         sections_counts = []
+        sections_percentage = []
+
         for cros_col in self.crosstables:
-            maq = self.df[subquestions_columns].apply(lambda x: x.map(main_mapping))
-            question = []
+            counts = []
+            percentage_list = []
+            value_count = self.df[cros_col].value_counts()
             for sub_col in subquestions_columns:
-                c = pd.crosstab(maq[sub_col].reset_index(name=sub_col).sum(), self.df[cros_col])
-                print(c)
-                question.append(c)
-            q = pd.concat(question, axis=1)
-            sections_counts.append(q)
+                count = pd.crosstab(maq[sub_col], self.df[cros_col], dropna=False, rownames=[col.question]).astype(int)
+                try:
+                    count = count.drop(index=0, axis=0)
+                except:
+                    pass
+                count = count.rename(index={1:sub_col}).reset_index(names=[col.question])
+                combined = count.copy()
+                for per_col in combined.columns:
+                    n = value_count.get(per_col, 0)
+                    if per_col == col.question:
+                        continue
+                    if n > 0:
+                        combined[f'% {per_col}'] = (combined[per_col] / n).round(2)
+                    else:
+                        combined[f'% {per_col}'] = 0.0
+                percentage = combined.copy().drop(columns=[column for column in combined.columns if "%" not in column])
+                counts.append(count)
+                percentage_list.append(percentage)
+            c = pd.concat(counts, axis=0)
+            p = pd.concat(percentage_list, axis=0)
+            sections_counts.append(c)
+            sections_percentage.append(p)
 
-
+        counts = pd.concat(sections_counts, axis=1)
+        combined = pd.concat(sections_counts + sections_percentage, axis=1)
+        percentage = pd.concat(sections_percentage, axis=1)
+        return counts, combined, percentage
+            
     def create_frequencies_tables(self):
         for col in self.mapping:
             if col.subquestions is None:
