@@ -2,7 +2,6 @@ import pandas as pd
 from app.services.recoder.schema import Question
 from app.services.analyzer.schema import FrequencieTable, MAQTable, MatrixTable, Crosstable
 from app.services.recoder.detector import Detector
-from typing import Generator
 
 class Analyzer:
     def __init__(self, df:pd.DataFrame, mapping:list[Question], crosstables:list[str]):
@@ -13,7 +12,7 @@ class Analyzer:
         self.crosstable_tables:list = []
         self.crosstab_df: pd.DataFrame | None = None
 
-    def generate_crosstable(self):
+    def generate_crosstable(self) -> None:
         for col in self.mapping:
             if col.question is None:
                 continue            
@@ -39,7 +38,7 @@ class Analyzer:
                 )
             self.crosstable_tables.append(crosstab) # type: ignore
 
-    def _create_crosstab(self, question:Question):
+    def _create_crosstab(self, question:Question) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
         categories = [cafe.value for cafe in question.cafeteria] if question.cafeteria else None
         question_series = pd.Categorical(self.df[question.question], categories) if categories else self.df[question.question]
         sections_counts:list[pd.DataFrame] = []
@@ -60,42 +59,23 @@ class Analyzer:
     def _create_maq_crosstab(
         self,
         col: Question,
-    ) -> pd.DataFrame:
+    ):
         detector = Detector()
         assert col.cafeteria_dump
         assert col.subquestions
         main_mapping = {cafe["value"]: cafe["index"] for cafe in col.cafeteria_dump}
         subquestions_columns = [subq.question for subq in col.subquestions]
+        sections_counts = []
+        for cros_col in self.crosstables:
+            maq = self.df[subquestions_columns].apply(lambda x: x.map(main_mapping))
+            question = []
+            for sub_col in subquestions_columns:
+                c = pd.crosstab(maq[sub_col].reset_index(name=sub_col).sum(), self.df[cros_col])
+                print(c)
+                question.append(c)
+            q = pd.concat(question, axis=1)
+            sections_counts.append(q)
 
-        sections = []
-        for cross_col in self.crosstables:
-            cross_vals = sorted(self.df[cross_col].dropna().unique())
-            col_data: dict[str, list] = {}
-
-            for val in cross_vals:
-                mask = self.df[cross_col] == val
-                subset = pd.DataFrame(self.df.loc[mask, subquestions_columns].copy())
-                subset.columns = [detector.get_cafeteria_item(c) for c in subset.columns]
-                for column in subset.columns:
-                    subset[column] = subset[column].map(main_mapping)
-                counts = subset.sum()
-                pct = (counts / mask.sum() * 100).round(2)
-
-                interleaved = []
-                for idx in counts.index:
-                    interleaved.append(counts[idx])
-                    interleaved.append(pct[idx])
-                col_data[val] = interleaved
-
-            labels = [subq.question for subq in col.subquestions if subq.question is not None]
-            row_index = pd.MultiIndex.from_tuples(
-                [(label, t) for label in labels for t in ("n", "% z kolumny")]
-            )
-            section = pd.DataFrame(col_data, index=row_index)
-            section.columns = pd.MultiIndex.from_product([[cross_col], cross_vals])
-            sections.append(section)
-
-        return pd.concat(sections, axis=1)
 
     def create_frequencies_tables(self):
         for col in self.mapping:
