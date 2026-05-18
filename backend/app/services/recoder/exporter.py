@@ -45,6 +45,10 @@ def write_to_excel(analyzer:Analyzer, decoded:pd.DataFrame, encodec:pd.DataFrame
                                            startcol=STARTCOL,
                                            startrow=startrow,
                                            sheet_name="Krzyżówki")
+                crosstable.percentage_table.to_excel(writer, 
+                                           startcol=STARTCOL_PERCENTAGE if crosstable.combined_table.shape[1] < STARTCOL_PERCENTAGE else crosstable.combined_table.shape[1] + 1 + BUFFER,
+                                           startrow=startrow,
+                                           sheet_name="Krzyżówki")
                 startrow += crosstable.combined_table.shape[0] + 1 + BUFFER
         spss_file = write_to_spss(decoded, mapping)
         zf.writestr("Baza danych.xlsx", excel_buffer.getvalue())
