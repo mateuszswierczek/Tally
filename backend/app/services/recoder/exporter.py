@@ -13,7 +13,6 @@ from app.services.recoder.schema import Question
 STARTCOL:int = 1
 STARTCOL_PERCENTAGE:int = 8
 BUFFER:int = 2
-CROSSTABLE_BUFFER:int = 2
 
 def write_to_excel(analyzer:Analyzer, decoded:pd.DataFrame, encodec:pd.DataFrame, mapping:list[Question], book_of_codes:pd.DataFrame) -> io.BytesIO:
     buffer = io.BytesIO()
@@ -21,7 +20,7 @@ def write_to_excel(analyzer:Analyzer, decoded:pd.DataFrame, encodec:pd.DataFrame
     analyzer.create_frequencies_tables()
     analyzer.generate_crosstable()
     frequencies_tables:list[FrequencieTable | MAQTable | MatrixTable] = analyzer.tables
-    cross_tables:list[Crosstable] = analyzer.crosstable_tables
+    cross_tables:list[Crosstable | pd.DataFrame] = analyzer.crosstable_tables
 
     with zipfile.ZipFile(buffer, "w") as zf:
         excel_buffer = io.BytesIO()
@@ -41,15 +40,22 @@ def write_to_excel(analyzer:Analyzer, decoded:pd.DataFrame, encodec:pd.DataFrame
                 startrow += table.frequncie_table.shape[0] + 1 + BUFFER
             startrow = 0
             for crosstable in cross_tables:
-                crosstable.combined_table.to_excel(writer, 
-                                           startcol=STARTCOL,
-                                           startrow=startrow,
-                                           sheet_name="Krzyżówki")
-                crosstable.percentage_table.to_excel(writer, 
-                                           startcol=STARTCOL_PERCENTAGE if crosstable.combined_table.shape[1] < STARTCOL_PERCENTAGE else crosstable.combined_table.shape[1] + 1 + BUFFER,
-                                           startrow=startrow,
-                                           sheet_name="Krzyżówki")
-                startrow += crosstable.combined_table.shape[0] + 1 + BUFFER
+                try:
+                    crosstable.combined_table.to_excel(writer, 
+                                            startcol=STARTCOL,
+                                            startrow=startrow,
+                                            sheet_name="Krzyżówki")
+                    crosstable.percentage_table.to_excel(writer, 
+                                            startcol=STARTCOL_PERCENTAGE + 2 if crosstable.combined_table.shape[1] < STARTCOL_PERCENTAGE else crosstable.combined_table.shape[1] + 2 + BUFFER,
+                                            startrow=startrow,
+                                            sheet_name="Krzyżówki")
+                    startrow += crosstable.combined_table.shape[0] + 1 + BUFFER
+                except:
+                    crosstable.to_excel(writer, #type: ignore
+                                            startcol=STARTCOL,
+                                            startrow=startrow,
+                                            sheet_name="Krzyżówki")
+                    startrow += crosstable.shape[0] + 1 + BUFFER #type:ignore
         spss_file = write_to_spss(decoded, mapping)
         zf.writestr("Baza danych.xlsx", excel_buffer.getvalue())
         zf.writestr("Baza danych.sav", spss_file.getvalue())

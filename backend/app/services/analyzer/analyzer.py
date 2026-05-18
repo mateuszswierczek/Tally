@@ -25,13 +25,7 @@ class Analyzer:
                             combined_table=combined
                     )
                 else:
-                    # counts, combined, percentage  = self._create_crosstab(col)
-                    # crosstab = Crosstable(
-                    #         cross_table=counts,
-                    #         percentage_table=percentage,
-                    #         combined_table=combined
-                    #     )
-                    # self.crosstable_tables.append(crosstab)
+                    multi_index = []
                     for inner_col in col.subquestions:
                         assert inner_col.question is not None
                         counts, combined, percentage  = self._create_crosstab(inner_col, col)
@@ -40,7 +34,10 @@ class Analyzer:
                             percentage_table=percentage,
                             combined_table=combined
                         )
+                        print(percentage)
+                        multi_index.append(percentage)
                         self.crosstable_tables.append(crosstab)
+                    crosstab = pd.concat(multi_index, axis=0)
             else:
                 counts, combined, percentage  = self._create_crosstab(col)
                 crosstab = Crosstable(
@@ -49,7 +46,6 @@ class Analyzer:
                     combined_table=combined
                 )
             self.crosstable_tables.append(crosstab) # type: ignore
-
     def _create_crosstab(self, question:Question, colu:Question | None= None) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
         categories = [cafe.value for cafe in question.cafeteria] if question.cafeteria else None
         if colu and colu.cafeteria:
@@ -59,6 +55,10 @@ class Analyzer:
         sections_percentege:list[pd.DataFrame] = []
         for cross_col in self.crosstables:
             cross_table_counts = pd.crosstab(question_series, self.df[cross_col], dropna=False)
+            cross_table_counts.index = pd.MultiIndex.from_product(
+                [[question.question], cross_table_counts.index],
+                names=['Pytanie', 'Odpowiedź']
+            )
             cross_table_combined = cross_table_counts.copy()
             for col in cross_table_combined.columns:
                 cross_table_combined[f'% {col}'] = cross_table_combined[col] / cross_table_combined[col].sum()
