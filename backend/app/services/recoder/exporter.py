@@ -56,9 +56,9 @@ def write_to_excel(analyzer:Analyzer, decoded:pd.DataFrame, encodec:pd.DataFrame
                                             startrow=startrow,
                                             sheet_name="Krzyżówki")
                     startrow += crosstable.shape[0] + 1 + BUFFER #type:ignore
-        spss_file = write_to_spss(decoded, mapping)
+        #spss_file = write_to_spss(decoded, mapping)
         zf.writestr("Baza danych.xlsx", excel_buffer.getvalue())
-        zf.writestr("Baza danych.sav", spss_file.getvalue())
+        #zf.writestr("Baza danych.sav", spss_file.getvalue())
 
     buffer.seek(0)
     return buffer

@@ -30,7 +30,7 @@ class ReportGenerator:
 
             except:
                 continue
-        pass
+        return self.pptx
 
 df = pd.DataFrame({
     'Product': ['A', 'B', 'C'],

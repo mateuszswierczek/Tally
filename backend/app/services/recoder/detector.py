@@ -8,7 +8,7 @@ class Detector:
     MISSING_VALUES = ["", "#N/A", "N/A"]
     MISSING_VALUES_CODES = {"SysMissing":MISSING_VALUES}
     NUMERICAL:list[str] = ["int64", "float64"]
-    SUBQUESTION_PATTERN = re.compile(r'^(.+?)\s*\[.+\]$')
+    SUBQUESTION_PATTERN = re.compile(r'(?:^\[.+?\]\s*(.+)|(.+?)\s*\[.+?\]$)')
     THRESHOLD_5:int = 5
     THRESHOLD_10:int = 10
 

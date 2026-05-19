@@ -22,7 +22,7 @@ class Question(BaseModel):
     is_maq:bool = False
 
 class Cafeteria(BaseModel):
-    value: str | None = None
+    value: str| int | None = None
     index: int | None = None
     n: int | None = None
     pct: float | None = None

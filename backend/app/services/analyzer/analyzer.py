@@ -34,7 +34,6 @@ class Analyzer:
                             percentage_table=percentage,
                             combined_table=combined
                         )
-                        print(percentage)
                         multi_index.append(percentage)
                         self.crosstable_tables.append(crosstab)
                     crosstab = pd.concat(multi_index, axis=0)
@@ -46,6 +45,7 @@ class Analyzer:
                     combined_table=combined
                 )
             self.crosstable_tables.append(crosstab) # type: ignore
+
     def _create_crosstab(self, question:Question, colu:Question | None= None) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
         categories = [cafe.value for cafe in question.cafeteria] if question.cafeteria else None
         if colu and colu.cafeteria:
@@ -62,7 +62,15 @@ class Analyzer:
             cross_table_combined = cross_table_counts.copy()
             for col in cross_table_combined.columns:
                 cross_table_combined[f'% {col}'] = cross_table_combined[col] / cross_table_combined[col].sum()
-            cross_table_percentage = cross_table_combined.copy().drop(columns=[col for col in cross_table_combined.columns if "%" not in col])
+            print(cross_table_combined.columns)
+            cross_table_percentage = cross_table_combined.loc[
+    :,
+    [
+        col
+        for col in cross_table_combined.columns
+        if "%" in str(col)
+    ]
+]
             sections_counts.append(cross_table_counts)
             sections_percentege.append(cross_table_percentage)
         counts = pd.concat(sections_counts, axis=1)
@@ -104,8 +112,6 @@ class Analyzer:
                 percentage_list.append(percentage)
             c = pd.concat(counts, axis=0)
             p = pd.concat(percentage_list, axis=0)
-            print(c)
-            print(p)
             sections_counts.append(c)
             sections_percentage.append(p)
 

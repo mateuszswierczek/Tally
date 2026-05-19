@@ -16,6 +16,7 @@ class QuestionIterator:
         grouped:dict[str, list[str]]= {}
         for col in self.df.columns:
             if match := self.detector.get_base_question(col):
+                print(match)
                 grouped.setdefault(match, []).append(col)
         return grouped
 
@@ -35,7 +36,11 @@ class QuestionIterator:
             if is_grouped:
                 if temp_subquestions:
                     first_q = temp_subquestions[0]
-                    if self.detector.get_base_question(col) != self.detector.get_base_question(str(first_q.question)):
+                    grouped_column = self.detector.get_base_question(col)
+                    compared_column = self.detector.get_base_question(str(first_q.question))
+                    assert compared_column is not None
+                    assert grouped_column is not None
+                    if grouped_column[:20] != compared_column[:20]:
                         yield self._iterate_subquestion(temp_subquestions)
                         temp_subquestions = []
                         index_number += 1

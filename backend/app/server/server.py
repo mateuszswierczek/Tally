@@ -27,6 +27,7 @@ from app.services.recoder.recoder import Recoder
 from app.services.recoder.exporter import write_to_excel
 from app.services.recoder.mapper import Mapper
 from app.services.analyzer.analyzer import Analyzer
+from app.services.report.report import ReportGenerator
 from app.services.surveyParser.parser import QuestionnaireParser
 from app.services.surveyParser.lime_parser import LimeParser
 from file_sanitizer import sanitize_excel_file
@@ -135,6 +136,9 @@ async def receive_mapping(payload:MappingPayload, _= Depends(get_current_user)):
     merged = payload.merged
     analyzer = Analyzer(recoder.df, mapping, crosstables)
     mapper = Mapper(recoder.df)
+    #report = ReportGenerator(analyzer)
+    #report_pptx = report.generate_powerpoint()
+    #report_pptx.save("test.pptx")
     mapped_df = mapper.map_coding_onto_database(mapping, mapper.df)
     book_of_codes = mapper.create_book_of_codes(mapping)
     ziped_files = write_to_excel(analyzer, 
