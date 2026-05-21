@@ -16,7 +16,6 @@ class QuestionIterator:
         grouped:dict[str, list[str]]= {}
         for col in self.df.columns:
             if match := self.detector.get_base_question(col):
-                print(match)
                 grouped.setdefault(match, []).append(col)
         return grouped
 

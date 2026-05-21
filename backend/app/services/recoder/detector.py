@@ -4,7 +4,6 @@ from typing import Literal
 from .schema import ColumnType 
 
 class Detector:
-
     MISSING_VALUES = ["", "#N/A", "N/A"]
     MISSING_VALUES_CODES = {"SysMissing":MISSING_VALUES}
     NUMERICAL:list[str] = ["int64", "float64"]
@@ -40,9 +39,8 @@ class Detector:
         return None
 
     def get_base_question(self, col: str) -> str | None:
-        if match := self.SUBQUESTION_PATTERN.match(col):
-            return match.group(1).strip()
-        return None
+        match = re.search(r'^(.*?)\[', col)
+        return match.group(1).strip() if match else None
 
     def get_cafeteria_item(self, col: str) -> str | None:
         """Zwraca zawartość nawiasów kwadratowych z nazwy kolumny."""

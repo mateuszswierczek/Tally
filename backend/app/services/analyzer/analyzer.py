@@ -2,6 +2,8 @@ import pandas as pd
 from app.services.recoder.schema import Question
 from app.services.analyzer.schema import FrequencieTable, MAQTable, MatrixTable, Crosstable
 from app.services.recoder.detector import Detector
+from app.services.analyzer.tables import FrequenciesTable
+from app.services.analyzer.schema import QuestionTypes
 
 class Analyzer:
     def __init__(self, df:pd.DataFrame, mapping:list[Question], crosstables:list[str]):
@@ -11,6 +13,7 @@ class Analyzer:
         self.tables:list = []
         self.crosstable_tables:list = []
         self.crosstab_df: pd.DataFrame | None = None
+        self.types = QuestionTypes
 
     def generate_crosstable(self) -> None:
         for col in self.mapping:
@@ -116,40 +119,18 @@ class Analyzer:
         for col in self.mapping:
             if col.subquestions is None:
                 try:
-                    question =(pd.Categorical(self.df[col.question], 
-                                [unique for unique in self.df[col.question].unique()].sort()) if col.cafeteria is None 
-                        else  
-                            pd.Categorical(self.df[col.question], 
-                                [cafe.value for cafe in col.cafeteria])
-                    )
+                    if col.cafeteria is None:
+                        table = FrequenciesTable(self.df, col, self.types.order_by_unique)
+                    else:
+
+                        table = FrequenciesTable(self.df, col, self.types.order_by_mapping)
                 except:
-                    question = self.df[col.question]
-                value_count, percentage_table, combined_table = self._create_frequencie_table(question, col)
-                table = FrequencieTable(frequncie_table=value_count,
-                                                percentage_table=percentage_table,
-                                                combined_table=combined_table)
+                    table= FrequenciesTable(self.df, col)
             else:
                 if col.is_maq:
-                    value_count, percentage_N_table, percentage_QUESTION_table, combined_table = self._create_maq_table(col)
-                    table = MAQTable(frequncie_table=value_count,
-                                 percentage_N_table=percentage_N_table,
-                                 percentage_table=percentage_QUESTION_table,
-                                 combined_table=combined_table)
+                    table = FrequenciesTable(self.df, col, QuestionTypes.maq)
                 else:
-                    value_count, percentage_table, combined_table = self._create_matrix_counts_table(col)
-                    table = MatrixTable(frequncie_table=value_count, 
-                                        percentage_table=percentage_table, 
-                                        combined_table=combined_table,
-                                        subquestions=[])
-                    for subquestion in col.subquestions:
-                        assert col.cafeteria is not None
-                        question = pd.Categorical(self.df[subquestion.question], 
-                                [cafe.value for cafe in col.cafeteria])
-                        value_count, percentage_table, combined_table = self._create_frequencie_table(question, subquestion)
-                        subq = FrequencieTable(frequncie_table=value_count,
-                                                percentage_table=percentage_table,
-                                                combined_table=combined_table)
-                        table.subquestions.append(subq)
+                    table = FrequenciesTable(self.df, col, QuestionTypes.matrix)
             self.tables.append(table)
 
     def _create_frequencie_table(self, question:pd.Series | pd.Categorical | pd.DataFrame, col:Question):
