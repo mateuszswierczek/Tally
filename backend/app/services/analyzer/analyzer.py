@@ -62,15 +62,7 @@ class Analyzer:
             cross_table_combined = cross_table_counts.copy()
             for col in cross_table_combined.columns:
                 cross_table_combined[f'% {col}'] = cross_table_combined[col] / cross_table_combined[col].sum()
-            print(cross_table_combined.columns)
-            cross_table_percentage = cross_table_combined.loc[
-    :,
-    [
-        col
-        for col in cross_table_combined.columns
-        if "%" in str(col)
-    ]
-]
+            cross_table_percentage = cross_table_combined.loc[:,[col for col in cross_table_combined.columns if "%" in str(col) ]]
             sections_counts.append(cross_table_counts)
             sections_percentege.append(cross_table_percentage)
         counts = pd.concat(sections_counts, axis=1)
@@ -159,7 +151,6 @@ class Analyzer:
                                                 combined_table=combined_table)
                         table.subquestions.append(subq)
             self.tables.append(table)
-           
 
     def _create_frequencie_table(self, question:pd.Series | pd.Categorical | pd.DataFrame, col:Question):
         counts_table = self._calcualate_counts_table(question)
